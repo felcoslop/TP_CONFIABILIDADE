@@ -1,0 +1,4 @@
+config,A_analitico,A_montecarlo,R_missao
+Serie,0.98316,0.98325,0.1915
+Paralelo,0.99972,0.99976,0.3483
+Standby,0.9997,,0.6417

@@ -1,0 +1,475 @@
+%% =====================================================================
+%% Proposta de Trabalho Final - EEE017 Confiabilidade de Sistemas
+%% UFMG - Prof. Michel Bessani
+%% \textit{Dataset}: Bruinsma et al. (2024) - Motor + Bomba Centrífuga
+%% Template: IEEEtran (conference)
+%% Compilar com: pdflatex (2x) ou utilizar Overleaf
+%% =====================================================================
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% --- Pacotes essenciais ---------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+% =========================================================================
+% TÍTULO E AUTORES
+% =========================================================================
+\title{Análise de Confiabilidade de Bombas Centrífugas Industriais
+       Acionadas por Motor Elétrico com Base em
+       Dados Experimentais de Sensores de Vibração}
+
+\author{
+\IEEEauthorblockN{Felipe Costa Lopes}
+\IEEEauthorblockA{\textit{UFMG} \\
+Matrícula: 2018019648 \\
+Belo Horizonte, MG, Brasil}
+\and
+\IEEEauthorblockN{Isabella Beatriz de Souza Gomes}
+\IEEEauthorblockA{\textit{UFMG} \\
+Matrícula: 2022421587 \\
+Belo Horizonte, MG, Brasil}
+\and
+\IEEEauthorblockN{Stéphanie Pereira Barbosa}
+\IEEEauthorblockA{\textit{UFMG} \\
+Matrícula: 2021088965 \\
+Belo Horizonte, MG, Brasil}
+}
+
+\maketitle
+
+% =========================================================================
+% RESUMO
+% =========================================================================
+\begin{abstract}
+Este trabalho propõe a aplicação de métodos clássicos de Engenharia de
+Confiabilidade a um conjunto de dados experimental público de bombas
+centrífugas industriais acionadas por motores de indução, coletado pela
+Marinha Real dos Países Baixos~\cite{bruinsma2024}. O \textit{dataset} original contém
+medições de vibração e corrente elétrica. Para os modos de falha estudados neste trabalho (defeitos de rolamento, desbalanceamentos e desalinhamento), utiliza-se exclusivamente o sinal de vibração. A partir desses dados, serão construídas séries de
+\textit{tempos até falha} (TTF) por tipo de modo de falha, sobre as
+quais serão ajustadas as distribuições Exponencial, Weibull e
+Log-normal pelo método de ranqueamento com \textit{median ranks} de
+Benard e por máxima verossimilhança (\textit{MLE}), com tratamento adequado de
+dados censurados à direita. Intervalos de confiança para os parâmetros
+serão estimados via \textit{bootstrap} não paramétrico. Com base na
+distribuição ajustada, serão calculados os índices MTTF, taxa de falha
+$\lambda(t)$, função de confiabilidade $R(t)$ e disponibilidade $A$.
+Por fim, o conjunto motor-bomba será modelado por Diagrama de Blocos de
+Confiabilidade (DBC) com os subsistemas \textit{motor} e \textit{bomba}
+em série, avaliado via simulação de Monte Carlo. Cenários hipotéticos
+de redundância ativa e \textit{standby} são incluídos como exercício de
+projeto para quantificar o ganho de disponibilidade potencial. Espera-se
+quantificar a influência de cada modo de falha na vida útil do
+equipamento e fornecer recomendações de estratégia de manutenção.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Confiabilidade, bombas centrífugas, motor de indução, distribuição
+Weibull, \textit{bootstrap}, Monte Carlo, diagrama de blocos,
+manutenção preditiva.
+\end{IEEEkeywords}
+
+% =========================================================================
+% I. INTRODUÇÃO
+% =========================================================================
+\section{Introdução}
+
+A Engenharia de Confiabilidade estuda a probabilidade de um sistema
+executar sua função prevista, sob condições especificadas, durante um
+determinado período de tempo~\cite{oconnor2012}. Em sistemas industriais,
+falhas não planejadas geram paradas de produção, custos elevados de
+reparo e, em casos extremos, riscos à segurança. Por isso, a estimativa
+de índices como o Tempo Médio até Falha (MTTF), a taxa de falha
+$\lambda(t)$ e a disponibilidade $A$ é fundamental para a tomada de
+decisão em manutenção.
+
+Bombas centrífugas acionadas por motores de indução são equipamentos
+críticos em praticamente todos os setores industriais --- da manufatura
+ao naval~\cite{bruinsma2024}. Esses conjuntos motor-bomba estão sujeitos
+a uma ampla variedade de modos de falha: defeitos de rolamento
+(identificados pelas frequências BPFO e BPFI), desalinhamento, 
+desbalanceamento, cavitação, dano no impelidor e degradação de
+acoplamento~\cite{bruinsma2024}. A pergunta central do ponto de vista
+da confiabilidade é: \textit{dado um modo de falha, qual é a vida
+esperada do equipamento e como a configuração do sistema afeta a sua
+disponibilidade?}
+
+Este trabalho propõe responder a essa pergunta aplicando os métodos
+ensinados na disciplina EEE017 --- ajuste de distribuições de vida,
+\textit{bootstrap}, cálculo de índices e simulação de Monte Carlo --- a um
+\textit{dataset} experimental público real de alta qualidade, descrito na
+próxima seção.
+
+% =========================================================================
+% II. DESCRIÇÃO DO SISTEMA
+% =========================================================================
+\section{Descrição do Sistema}
+
+\subsection{Dataset Utilizado}
+
+O conjunto de dados utilizado é o \textit{Motor Current and Vibration
+Monitoring \textit{Dataset} for Various Faults in an E-motor-driven Centrifugal
+Pump}, publicado por Bruinsma \textit{et al.}~\cite{bruinsma2024} e
+disponível gratuitamente no repositório 4TU.ResearchData (DOI:
+\texttt{10.4121/2b61183e-c14f-4131-829b-cc4822c369d0}). O \textit{dataset} é
+resultado de uma campanha experimental conduzida no \textit{Techport Fieldlab}
+da Tata Steel, nos Países Baixos, pela Marinha Real Holandesa em
+parceria com a Universidade de Twente.
+
+O sistema físico consiste em duas bancadas completas de motor-bomba
+centrífuga (Motor~2 e Motor~4), cada uma composta por:
+
+\begin{itemize}
+    \item Motor de indução trifásico (11\,kW a 1470\,RPM para o
+    Motor~2; 22\,kW a 2950\,RPM para o Motor~4), acionado por
+    inversor de frequência (\textit{Variable Frequency Drive} -- \textit{VFD});
+    \item Bomba centrífuga NK80 acoplada ao motor por acoplamento de
+    garras com blocos de borracha;
+    \item Sistema de circulação de água (reservatório de 60\,m$^3$,
+    válvulas de sucção e descarga controláveis).
+\end{itemize}
+
+\subsection{Falhas Simuladas}
+
+O \textit{dataset} original registra o comportamento do sistema em condição saudável
+(\textit{baseline}) e sob 11~tipos de falhas simuladas~\cite{bruinsma2024}.
+Para o escopo e execução deste trabalho, foram selecionados e analisados
+apenas 4~modos de falha específicos:
+
+\begin{itemize}
+    \item Defeito de rolamento (Motor~2): dano na pista
+    interna (BPFI), em 3 severidades;
+    \item Desbalanceamento no motor (Motor~4): em 6 severidades;
+    \item Desbalanceamento na bomba (Motor~4): em 3 severidades;
+    \item Desalinhamento paralelo (Motor~4): em 4 severidades.
+\end{itemize}
+
+\textit{Nota:} Os outros modos de falha presentes no \textit{dataset} (como 
+dano em pista externa BPFO, desalinhamento angular, cavitação, dano no 
+impelidor, pé solto, entre outros) foram avaliados na fase de planejamento, 
+mas descartados deste estudo por não apresentarem assinatura de degradação 
+suficientemente separável da condição base nos canais instrumentados ou 
+por restrição de escopo do projeto.
+
+\subsection{Sensores e Variáveis}
+
+Duas técnicas de monitoramento por condição foram empregadas
+simultaneamente~\cite{bruinsma2024}:
+
+\begin{itemize}
+    \item Vibração: 5~acelerômetros monoaxiais (Wilcoxon
+    786B-10, 100\,mV/g), taxa de amostragem de 20\,kHz, cada
+    registro com 12\,s de duração. Os canais cobrem os mancais
+    do motor e da bomba em diferentes direções (horizontal,
+    vertical e axial);
+    \item Corrente e tensão: 3~fases medidas por pinças
+    amperimétricas (CR3110) e taps de tensão (Wago 855), taxa de
+    20\,kHz, registros de 15\,s por medição.
+\end{itemize}
+
+Esses dados têm rastreabilidade física completa: cada arquivo CSV é
+identificado pelo motor, velocidade, tipo de falha e severidade, com
+rotulagem quase perfeita (\textit{near perfect labelling})~\cite{bruinsma2024}. As variáveis medem os mesmos
+fenômenos físicos presentes em motobombas industriais reais, tornando
+o \textit{dataset} adequado para análise de confiabilidade com base em condição.
+
+% =========================================================================
+% III. REVISÃO DA LITERATURA
+% =========================================================================
+\section{Revisão da Literatura}
+
+A análise estatística de dados de vida de equipamentos --- tempos até
+falha (TTF) e dados censurados --- é tratada de forma abrangente em
+O'Connor e Kleyner~\cite{oconnor2012} e Colosimo e
+Giolo~\cite{colosimo2006}. As distribuições Exponencial (taxa de falha
+constante), Weibull (taxa variável) e Log-normal (desgaste cumulativo)
+são as mais utilizadas em confiabilidade, e seus ajustes por
+ranqueamento com \textit{median ranks} de Benard e por \textit{MLE} com suporte
+a censura à direita são procedimentos estabelecidos~\cite{oconnor2012}.
+
+A distribuição Weibull, em particular, é versátil porque o parâmetro de
+forma $\beta$ revela o estágio do ciclo de vida do equipamento: $\beta
+< 1$ indica falhas prematuras (mortalidade infantil), $\beta \approx 1$
+indica taxa de falha constante (vida útil), e $\beta > 1$ indica
+desgaste crescente~\cite{bessani2026,oconnor2012}. Isso permite
+relacionar o modo de falha ao comportamento esperado da taxa de falha
+e à posição na curva da banheira.
+
+O método \textit{bootstrap} não paramétrico para construção de
+intervalos de confiança em parâmetros estimados de distribuições de
+vida é apresentado como ferramenta computacional robusta nas notas de
+aula da disciplina~\cite{bessani2026} e fundamentado em Robert e
+Casella~\cite{robert2010}.
+
+A modelagem de sistemas compostos por múltiplos componentes é feita por
+meio do Diagrama de Blocos de Confiabilidade (DBC), que permite calcular
+a confiabilidade e a disponibilidade do sistema nas configurações série,
+paralelo com redundância ativa e \textit{standby}~\cite{oconnor2012,
+bessani2026}. A simulação de Monte Carlo complementa essa análise em
+sistemas onde a expressão analítica é complexa~\cite{zio2013,bessani2026}.
+
+No campo de motores e bombas, Bruinsma \textit{et al.}~\cite{bruinsma2024}
+demonstram que vibração e corrente são as técnicas de monitoramento mais
+aplicadas na detecção precoce de falhas em equipamentos rotativos, o que
+motiva o uso desses sinais como base para a derivação de tempos de vida
+e consequente análise de confiabilidade.
+
+% =========================================================================
+% IV. METODOLOGIA
+% =========================================================================
+\section{Metodologia}
+
+A metodologia é dividida em quatro etapas, implementadas em Python com
+base nos scripts de referência da disciplina.
+
+\subsection{Construção das Séries de Tempo até Falha (TTF)}
+
+O \textit{dataset} de Bruinsma \textit{et al.}~\cite{bruinsma2024} registra, para
+cada par (tipo de falha, severidade, velocidade), múltiplas medições de
+12\,s de vibração (registros independentes por coluna do CSV). O procedimento para obtenção do
+TTF é o seguinte:
+
+\begin{enumerate}
+    \item Para cada modo de falha $m$ e severidade $s$, computar o
+    indicador de degradação: RMS do sinal de vibração em uma banda
+    de frequência selecionada por física e validada por correlação de
+    Spearman com a severidade (banda alta 1--9\,kHz para rolamento;
+    banda baixa 10--300\,Hz para desbalanceamento e desalinhamento);
+    \item Modelar a degradação como crescimento exponencial
+    $D(\tau)=D_0 e^{\rho\tau}$, calibrando a taxa média $\bar\rho$ dos
+    dados e simulando variabilidade unidade-a-unidade via taxa aleatória
+    $\rho=\bar\rho\cdot e^{\mathcal{N}(0,\,c)}$; o equipamento é
+    declarado em falha quando $D$ cruza o limiar
+    $L=\mu_0+0{,}5\,(D_{max}-\mu_0)$;
+    \item Registrar o TTF como o tempo decorrido (em minutos de
+    operação acumulada) desde o início da medição em condição
+    degradada até o cruzamento do limiar;
+    \item Tratar como dado censurado à direita todo caso em
+    que o limiar não foi ultrapassado ao fim do experimento, seguindo
+    a metodologia apresentada na disciplina~\cite{bessani2026,colosimo2006}.
+\end{enumerate}
+
+Serão analisados os modos de falha com indicador de degradação
+monotônico verificado: rolamento (BPFI), desbalanceamento no motor,
+desbalanceamento na bomba e desalinhamento paralelo. O modo BPFO e o
+desalinhamento angular foram avaliados, mas descartados por não
+apresentarem assinatura separável da condição saudável nos canais disponíveis.
+
+\subsection{Ajuste de Distribuições}
+
+Sobre as amostras de TTF de cada modo de falha, serão ajustadas as
+distribuições Exponencial, Weibull (2 parâmetros) e Log-normal por dois
+métodos complementares, conforme apresentado na disciplina:
+
+\paragraph{Ranqueamento com \textit{Median Ranks} de Benard}
+Os TTFs observados são ordenados de forma crescente e seus ranques
+medianos são calculados pela fórmula~\cite{oconnor2012,bessani2026}:
+\begin{equation}
+    r_{\text{med}}(i) = \frac{i - 0{,}3}{N + 0{,}4}
+\end{equation}
+onde $i$ é a posição do $i$-ésimo TTF na amostra ordenada e $N$ é o
+total de observações (incluindo censuradas). Para dados censurados, os
+ranques são corrigidos conforme o procedimento de Johnson apresentado
+em~\cite{oconnor2012}. Os parâmetros são estimados por regressão linear
+no gráfico de probabilidade de cada distribuição.
+
+\paragraph{Máxima Verossimilhança (\textit{MLE})}
+A estimativa por \textit{MLE} é realizada com suporte a censura à direita,
+utilizando a biblioteca \texttt{reliability} do Python, que implementa
+o método apresentado na disciplina. A comparação entre distribuições
+será feita pelo critério AIC e pelos testes de aderência
+Kolmogorov--Smirnov e Anderson--Darling.
+
+\subsection{Intervalos de Confiança por \textit{Bootstrap}}
+
+Para cada parâmetro estimado ($\beta$, $\eta$ na Weibull; $\mu$,
+$\sigma$ na Log-normal; $\lambda$ na Exponencial), serão construídos
+intervalos de confiança de 95\% por \textit{bootstrap} não paramétrico
+com $R = 10^{4}$ reamostragens, seguindo o procedimento apresentado
+nas notas de aula da disciplina e exemplificado no script
+\texttt{6\_2\_IC\_Bootstrap.py}~\cite{bessani2026}:
+
+\begin{enumerate}
+    \item Reamostrar com reposição a amostra de TTFs (preservando
+    o status de censura de cada observação);
+    \item Reajustar a distribuição escolhida a cada reamostra;
+    \item Calcular o percentil 2,5\% e 97,5\% das distribuições dos
+    estimadores ao longo das $R$ repetições.
+\end{enumerate}
+
+\subsection{Cálculo dos Índices de Confiabilidade}
+
+Com a distribuição ajustada $F(t)$, serão calculados os índices de
+confiabilidade para cada modo de falha estudado~\cite{bessani2026,oconnor2012}:
+
+\begin{itemize}
+    \item MTTF: tempo médio até a falha,
+    $\text{MTTF} = \int_0^\infty R(t)\,dt$, onde
+    $R(t) = 1 - F(t)$ é a função de confiabilidade;
+    \item Função de confiabilidade $R(t)$: probabilidade de
+    sobrevivência até o instante $t$;
+    \item Função de risco $h(t) = f(t)/R(t)$: taxa
+    instantânea de falha, cujo comportamento indica o estágio na
+    curva da banheira (crescente, constante ou decrescente);
+    \item Disponibilidade $A = \text{MTTF}/(\text{MTTF} +
+    \text{MTTR})$, com $\text{MTTR}=24$\,h (estimativa de engenharia
+    para troca de rolamento/balanceamento, um turno de manutenção).
+\end{itemize}
+
+\subsection{Modelagem do Sistema e Simulação de Monte Carlo}
+
+O conjunto motor-bomba será representado por um Diagrama de Blocos de
+Confiabilidade (DBC) com dois subsistemas: o motor de indução
+(sujeito a falhas elétricas e de rolamento do motor) e a
+bomba centrífuga (sujeita a defeitos de impelidor, rolamento
+da bomba e cavitação). Essa divisão é fiel à topologia física, na qual
+a falha de qualquer um dos dois subsistemas interrompe o processo.
+
+Serão avaliados três cenários, implementados em Python com base no
+script \texttt{7\_2\_MC\_sistema\_dependencia.py} da
+disciplina~\cite{bessani2026}:
+
+\begin{itemize}
+    \item Cenário 1 -- Série (configuração real): motor e
+    bomba operam em série; qualquer falha para o sistema. Este é o
+    arranjo físico efetivo da bancada;
+    \item Cenário 2 -- Paralelo (redundância ativa)
+    (hipotético): assume-se que um segundo conjunto motor-bomba
+    idêntico está disponível; o processo mantém-se enquanto ao menos
+    um dos dois conjuntos operar;
+    \item Cenário 3 -- \textit{Standby} (hipotético): um conjunto
+    opera e o segundo fica em espera, sendo ativado apenas em caso de
+    falha do primeiro.
+\end{itemize}
+
+Os cenários~2 e~3 são exercícios de projeto, não descrevem a bancada
+experimental, mas permitem quantificar o ganho de disponibilidade que
+uma estratégia de redundância traria ao sistema real.
+
+Para cada cenário, serão realizadas $N = 10^4$ iterações de Monte
+Carlo, gerando TTFs por inversão da CDF ajustada:
+\begin{equation}
+    t = F^{-1}(U), \quad U \sim \mathcal{U}(0,1)
+\end{equation}
+e registrando se o sistema cumpre a missão no horizonte de tempo
+estipulado. As expressões analíticas de disponibilidade para cada
+configuração, apresentadas na disciplina~\cite{bessani2026}, serão usadas
+como verificação dos resultados da simulação:
+\begin{align}
+    A_{\text{série}} &= \prod_{i} A_i \\
+    A_{\text{paralelo}} &\approx 1 - \prod_{i}(1 - A_i) \\
+    A_{\text{\textit{standby}}} &= \frac{\mu^2 + \mu\lambda}{\mu^2 + \mu\lambda + \lambda^2}
+\end{align}
+
+% =========================================================================
+% V. RESULTADOS ESPERADOS
+% =========================================================================
+\section{Resultados Esperados}
+
+Ao final do trabalho, espera-se entregar:
+
+\begin{itemize}
+    \item Tabela comparativa de MTTF, $\lambda$, $\beta$
+    (Weibull) e disponibilidade $A$ para cada modo de falha analisado,
+    permitindo identificar quais falhas degradam mais rapidamente o
+    equipamento;
+    \item Curvas $R(t)$ com bandas de confiança de 95\%
+    (obtidas por \textit{bootstrap}), indicando, por meio do $\beta$
+    estimado, em qual estágio da curva da banheira cada modo de falha
+    se enquadra;
+    \item Gráfico de probabilidade Weibull (ou da distribuição
+    vencedora) para validação visual do ajuste e para comunicar os
+    resultados de forma intuitiva para não especialistas;
+    \item Comparação dos três cenários (série real, paralelo
+    hipotético e \textit{standby} hipotético) em termos de
+    $R_{\text{SYS}}(t)$ e disponibilidade do sistema, obtidos via
+    simulação de Monte Carlo com verificação analítica;
+    \item Recomendação de estratégia de manutenção: com base
+    no $\beta$ estimado para cada modo de falha, será discutido se a
+    manutenção preventiva baseada em tempo ou a manutenção baseada em
+    condição é mais adequada.
+\end{itemize}
+
+Como contribuição metodológica, o trabalho demonstra uma rota
+reprodutível para derivar indicadores de confiabilidade a partir de
+dados experimentais de sensores, aplicando diretamente os métodos
+da disciplina a um sistema físico real e bem documentado.
+
+% =========================================================================
+% REFERÊNCIAS
+% =========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{bruinsma2024}
+S. Bruinsma, R.~D. Geertsma, R. Loendersloot, and T. Tinga,
+``Motor current and vibration monitoring \textit{dataset} for various faults in
+an E-motor-driven centrifugal pump,''
+\textit{Data in Brief}, vol.~52, p.~109987, Feb. 2024,
+doi: \url{10.1016/j.dib.2023.109987}.
+
+\bibitem{oconnor2012}
+P.~D.~T. O'Connor and A. Kleyner,
+\textit{Practical Reliability Engineering}, 5th~ed.
+Chichester: Wiley, 2012.
+
+\bibitem{bessani2026}
+M. Bessani,
+``Notas de aula da disciplina EEE017 -- Confiabilidade de Sistemas,''
+UFMG, Belo Horizonte, 2026.
+
+\bibitem{colosimo2006}
+E.~A. Colosimo and S.~R. Giolo,
+\textit{Análise de Sobrevivência Aplicada}, 1ª~ed.
+São Paulo: Blucher, 2006.
+
+\bibitem{robert2010}
+C.~P. Robert and G. Casella,
+\textit{Introducing Monte Carlo Methods with R}.
+New York: Springer, 2010.
+
+\bibitem{zio2013}
+E. Zio,
+\textit{The Monte Carlo Simulation Method for System Reliability and
+Risk Analysis}.
+London: Springer, 2013.
+
+\bibitem{birolini2007}
+A. Birolini,
+\textit{Reliability Engineering: Theory and Practice}, 5th~ed.
+Berlin: Springer, 2007.
+
+\bibitem{montgomery2013}
+D.~C. Montgomery and G.~C. Runger,
+\textit{Applied Statistics and Probability for Engineers}, 6th~ed.
+Hoboken: Wiley, 2013.
+
+\bibitem{pinciroli2023}
+L. Pinciroli, P. Baraldi, and E. Zio,
+``Maintenance optimization in industry 4.0,''
+\textit{Reliability Engineering \& System Safety}, vol.~234,
+p.~109204, 2023.
+
+\end{thebibliography}
+
+\end{document}

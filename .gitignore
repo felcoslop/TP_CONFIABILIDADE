@@ -1,0 +1,63 @@
+# =============================================================================
+# course_materials/ — material da disciplina, nao redistribuir
+# =============================================================================
+course_materials/
+
+# =============================================================================
+# latex/ — manter apenas .tex e .pdf
+# =============================================================================
+latex/*.aux
+latex/*.log
+latex/*.out
+latex/*.bbl
+latex/*.blg
+latex/*.fls
+latex/*.fdb_latexmk
+latex/*.synctex.gz
+latex/*.toc
+latex/*.lof
+latex/*.lot
+latex/*.dvi
+latex/*.idx
+latex/*.ilg
+latex/*.ind
+latex/_preview/
+latex/test_subcaption.*
+
+# =============================================================================
+# Dataset bruto — CSVs grandes (80 GB), manter estrutura de pastas vazia
+# =============================================================================
+# CSVs do dataset bruto (pasta renomeada para dataset_bruinsma2024)
+data/dataset_bruinsma2024/Dataset/
+# README.txt original mantido localmente mas ignorado (convertido para .md)
+data/dataset_bruinsma2024/README.txt
+
+# =============================================================================
+# database_tiny — CSVs acima do limite de 100 MB do GitHub
+# gerado localmente com: python code/construir_dataset_tiny.py
+# =============================================================================
+data/database_tiny/Vibration/
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.env
+*.egg-info/
+
+# =============================================================================
+# Instrucoes internas do Claude Code (nao vai para o repo publico)
+# =============================================================================
+code/CLAUDE.md
+.claude/
+
+# =============================================================================
+# Sistemas operacionais / IDEs
+# =============================================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

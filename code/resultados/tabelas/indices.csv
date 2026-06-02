@@ -1,0 +1,5 @@
+modo,nome,dist,MTTF_h,lambda_aprox,beta,MTTR_h,disponibilidade,estagio_banheira
+bpfi,Rolamento - pista interna (BPFI),Lognormal,4856.9,0.00020589,3.817,24.0,0.99508,desgaste (taxa crescente)
+unbal_motor,Desbalanceamento no motor,Lognormal,5997.0,0.00016675,0.98,24.0,0.99601,taxa aproximadamente constante
+unbal_pump,Desbalanceamento na bomba,Lognormal,1835.9,0.0005447,1.679,24.0,0.9871,desgaste (taxa crescente)
+align_par,Desalinhamento paralelo,Lognormal,2830.9,0.00035325,2.923,24.0,0.99159,desgaste (taxa crescente)
