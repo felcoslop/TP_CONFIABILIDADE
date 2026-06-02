@@ -318,22 +318,26 @@ para os modos selecionados.
 \end{table}
 
 O sinal de vibração contém energia em todo o espectro, mas cada falha concentra
-sua assinatura em uma faixa específica, determinada pelo período $T = 1/f$ dos
-eventos físicos envolvidos. A banda $[f_1, f_2]$ é o intervalo em que o RMS é
+sua assinatura em uma faixa específica, determinada pelo período $T=1/f$ dos
+eventos físicos envolvidos. A banda $[f_1,f_2]$ é o intervalo em que o RMS é
 calculado: via densidade espectral de Welch, integra-se apenas essa faixa em vez
 de todo o espectro.
 
-Para desbalanceamento e desalinhamento (10--300\,Hz, períodos de $\approx$3\,ms
-a 100\,ms): a falha perturba o eixo a cada rotação; no Motor~4 a 70\,Hz, a
-frequência de rotação é $\approx$35\,Hz ($T\approx$29\,ms), e os harmônicos
-$1\times$ e $2\times$ ficam dentro dessa faixa de baixa frequência.
-Para rolamento (1--9\,kHz, períodos de 0,1\,ms a 1\,ms): um defeito na pista
-gera impactos com duração de frações de milissegundo, que excitam ressonâncias
-estruturais nessa faixa de alta frequência. O RMS de banda larga não captura
-esses impactos porque a energia de rotação em baixa frequência é dominante e os
-mascara. A escolha foi validada por correlação de Spearman entre o indicador e a
-severidade crescente, mantendo-se apenas combinações com $\rho_s \geq 0{,}89$ e
-crescimento monotônico.
+\begin{itemize}
+  \item Rolamento (1--9\,kHz, $T \approx 0{,}1$--1\,ms): um defeito na pista
+  gera impactos mecânicos com duração de frações de milissegundo, que excitam
+  ressonâncias estruturais nessa faixa de alta frequência. O RMS de banda larga
+  não captura esses impactos porque a energia de rotação em baixa frequência é
+  dominante e os mascara.
+  \item Desbalanceamento e desalinhamento (10--300\,Hz, $T \approx 3$--100\,ms):
+  a falha perturba o eixo a cada rotação; no Motor~4 a 70\,Hz, a frequência de
+  rotação é $\approx$35\,Hz ($T \approx 29$\,ms), e os harmônicos $1\times$ e
+  $2\times$ ficam dentro dessa faixa de baixa frequência.
+\end{itemize}
+
+A escolha foi validada por correlação de Spearman entre o indicador e a
+severidade crescente em todos os canais disponíveis, mantendo-se apenas a
+combinação (canal, banda) com $\rho_s \geq 0{,}89$ e crescimento monotônico.
 
 \subsection{Ajuste e Índices por Modo}
 A Tabela~\ref{tab:resultados} consolida os resultados. As quatro séries têm a
