@@ -317,30 +317,22 @@ para os modos selecionados.
   \end{tabular}
 \end{table}
 
-\textbf{Sobre as bandas de frequência.}
-O sinal de vibração contém energia em todo o espectro, mas cada tipo de falha
-concentra sua assinatura em uma faixa específica. A \emph{banda de frequência} é
-justamente esse intervalo $[f_1, f_2]$ dentro do qual o RMS é calculado via
-densidade espectral de potência (método de Welch): a janela temporal do sinal é
-transformada para o domínio da frequência, e integra-se apenas na faixa de
-interesse em vez de usar todo o espectro.
+O sinal de vibração contém energia em todo o espectro, mas cada falha concentra
+sua assinatura em uma faixa específica, determinada pelo período $T = 1/f$ dos
+eventos físicos envolvidos. A banda $[f_1, f_2]$ é o intervalo em que o RMS é
+calculado: via densidade espectral de Welch, integra-se apenas essa faixa em vez
+de todo o espectro.
 
-A escolha da banda segue a física de cada modo:
-\begin{itemize}
-  \item \textbf{Rolamento (1--9\,kHz):} um defeito na pista gera impactos mecânicos
-  repetitivos em alta frequência, cujas componentes características (BPFI, BPFO,
-  BSF) ficam na faixa de kHz. O RMS de banda larga não captura esses impactos
-  porque a energia de vibração de fundo (rotação, desbalanceamento) é muito maior
-  em baixa frequência e mascara o defeito.
-  \item \textbf{Desbalanceamento e desalinhamento (10--300\,Hz):} essas falhas
-  perturbam a rotação do eixo, gerando componentes em $1\times$ e $2\times$ a
-  frequência de rotação (70\,Hz no Motor~4 = 1,17\,Hz, mas os harmônicos e
-  bandas laterais somam energia na faixa de 10 a algumas centenas de Hz).
-\end{itemize}
-
-A escolha foi \emph{validada empiricamente}: calculou-se a correlação de Spearman
-entre o indicador e a severidade crescente em todos os canais disponíveis, e
-manteve-se apenas a combinação (canal, banda) com correlação $\geq 0{,}89$ e
+Para desbalanceamento e desalinhamento (10--300\,Hz, períodos de $\approx$3\,ms
+a 100\,ms): a falha perturba o eixo a cada rotação; no Motor~4 a 70\,Hz, a
+frequência de rotação é $\approx$35\,Hz ($T\approx$29\,ms), e os harmônicos
+$1\times$ e $2\times$ ficam dentro dessa faixa de baixa frequência.
+Para rolamento (1--9\,kHz, períodos de 0,1\,ms a 1\,ms): um defeito na pista
+gera impactos com duração de frações de milissegundo, que excitam ressonâncias
+estruturais nessa faixa de alta frequência. O RMS de banda larga não captura
+esses impactos porque a energia de rotação em baixa frequência é dominante e os
+mascara. A escolha foi validada por correlação de Spearman entre o indicador e a
+severidade crescente, mantendo-se apenas combinações com $\rho_s \geq 0{,}89$ e
 crescimento monotônico.
 
 \subsection{Ajuste e Índices por Modo}
