@@ -36,7 +36,8 @@ data/dataset_bruinsma2024/README.txt
 # database_tiny — CSVs acima do limite de 100 MB do GitHub
 # gerado localmente com: python code/construir_dataset_tiny.py
 # =============================================================================
-data/database_tiny/Vibration/
+# ignora os CSVs (muito grandes), mas preserva a estrutura de pastas via .gitkeep
+data/database_tiny/Vibration/**/*.csv
 
 # =============================================================================
 # Python
