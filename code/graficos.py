@@ -103,7 +103,10 @@ def fig_ajuste_cdf(modo, pares_mr, distribuicoes, tmax, n_falhas=None, n_total=N
                label=u"último TTF observado (%.0f h)" % t.max())
     cores = {"Weibull": "#C44E52", "Exponencial": "#55A868", "Lognormal": "#4C72B0"}
     for nome, dist in distribuicoes.items():
-        ax.plot(tt, dist.CDF(tt), color=cores.get(nome), label=nome, lw=2)
+        # show_plot=False: so queremos os valores; sem isso a 'reliability'
+        # plota sozinha a curva + banda de IC propria (em cor trocada).
+        ax.plot(tt, dist.CDF(tt, show_plot=False), color=cores.get(nome),
+                label=nome, lw=2)
     ax.set_xlabel("t  [h]")
     ax.set_ylabel("F(t)  —  probabilidade acumulada de falha")
     ax.set_title(u"Ajuste das distribuições - %s" % modo["nome"])
@@ -135,9 +138,9 @@ def fig_bootstrap(modo, amostras, rotulos, ics):
 def fig_indices(modo, dist, tmax):
     tt = np.linspace(1, tmax, 400)
     fig, axs = plt.subplots(1, 3, figsize=(13, 4))
-    axs[0].plot(tt, dist.SF(tt), "#4C72B0"); axs[0].set_title("R(t)")
-    axs[1].plot(tt, dist.HF(tt), "#C44E52"); axs[1].set_title("h(t) - taxa de falha")
-    axs[2].plot(tt, dist.PDF(tt), "#55A868"); axs[2].set_title("f(t)")
+    axs[0].plot(tt, dist.SF(tt, show_plot=False), "#4C72B0"); axs[0].set_title("R(t)")
+    axs[1].plot(tt, dist.HF(tt, show_plot=False), "#C44E52"); axs[1].set_title("h(t) - taxa de falha")
+    axs[2].plot(tt, dist.PDF(tt, show_plot=False), "#55A868"); axs[2].set_title("f(t)")
     for ax in axs:
         ax.set_xlabel("t  [h]"); ax.grid(True, alpha=0.3)
     fig.suptitle("Indices de confiabilidade - %s" % modo["nome"])
@@ -213,7 +216,8 @@ def fig_rt_todos(modos_nomes, dists_dict, tmax_h=8000):
     cores = ["#4C72B0", "#C44E52", "#55A868", "#8172B3"]
     fig, ax = plt.subplots(figsize=(9, 5))
     for i, (nome, dist) in enumerate(dists_dict.items()):
-        ax.plot(tt, dist.SF(tt), color=cores[i % len(cores)], lw=2, label=nome)
+        ax.plot(tt, dist.SF(tt, show_plot=False), color=cores[i % len(cores)],
+                lw=2, label=nome)
     ax.axhline(0.9, color="gray", ls=":", lw=1, label="R=0,90")
     ax.axhline(0.5, color="gray", ls="--", lw=1, label="R=0,50 (mediana)")
     ax.set_xlabel("t  [h]  —  tempo de operacao acumulada")
@@ -232,7 +236,7 @@ def fig_ht_todos(modos_nomes, dists_dict, tmax_h=8000):
     cores = ["#4C72B0", "#C44E52", "#55A868", "#8172B3"]
     fig, ax = plt.subplots(figsize=(9, 5))
     for i, (nome, dist) in enumerate(dists_dict.items()):
-        ht = dist.HF(tt)
+        ht = dist.HF(tt, show_plot=False)
         ax.plot(tt, ht, color=cores[i % len(cores)], lw=2, label=nome)
     ax.set_xlabel("t  [h]  —  tempo de operacao acumulada")
     ax.set_ylabel(u"h(t)  —  taxa instantanea de falha [1/h]")

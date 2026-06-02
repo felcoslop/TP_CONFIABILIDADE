@@ -287,6 +287,24 @@ analíticas $A_{s}=\prod_i A_i$, $A_{p}=1-\prod_i(1-A_i)$ e
 $A_{sb}=(\mu^2+\mu\lambda)/(\mu^2+\mu\lambda+\lambda^2)$ verificam a
 simulação~\cite{zio2013}.
 
+Adota-se o \textit{standby} a frio (reserva fria): apenas uma unidade
+motor-bomba opera por vez, enquanto a unidade reserva permanece desligada e, por
+hipótese, não se degrada nem falha enquanto ociosa, sendo acionada por uma chave
+perfeita e instantânea no momento em que a unidade ativa falha. Sob essas
+premissas, a vida do sistema é a soma das vidas das duas unidades,
+$T_{sb}=T_A+T_B$, o que na simulação corresponde a somar os tempos de falha
+amostrados de cada conjunto; em valor esperado, $\mathrm{MTTF}_{sb}=2\,
+\mathrm{MTTF}_{conj}$, o dobro da unidade isolada. Esse acúmulo sequencial de
+vida útil distingue o \textit{standby} do paralelo (ativo), no qual a reserva
+envelhece junto com a unidade principal desde $t=0$ e, portanto, rende um ganho
+de confiabilidade na missão menor. A fórmula $A_{sb}$ decorre do modelo de
+Markov de dois estados com taxa de falha $\lambda=1/\mathrm{MTTF}_{conj}$ e taxa
+de reparo $\mu=1/\mathrm{MTTR}$ constantes e um único reparador; a comutação
+ideal e a ausência de falhas em prontidão são as idealizações que tornam o
+\textit{standby} um limite superior otimista frente a um arranjo real, no qual
+chave, sensores de acionamento e eventual degradação da reserva introduziriam
+falhas adicionais.
+
 % =========================================================================
 % IV. RESULTADOS
 % =========================================================================
