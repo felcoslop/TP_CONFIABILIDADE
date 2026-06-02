@@ -368,9 +368,31 @@ grande número de unidades simuladas.
 
 A Fig.~\ref{fig:cdf} mostra o ajuste das três distribuições sobre a CDF empírica
 do rolamento BPFI; a leve curvatura dos pontos explica por que a Log-normal
-supera a Weibull. A Fig.~\ref{fig:rbanda} apresenta a confiabilidade $R(t)$ da
-Weibull ajustada com a banda de confiança de 95\% obtida por \textit{bootstrap},
-que se alarga na faixa de maior incerteza. A Fig.~\ref{fig:resumo} resume o MTTF (eixo esquerdo, barras em azul) e o parâmetro de forma $\beta$ da Weibull (eixo direito, pontos em vermelho) dos quatro modos. A discrepância visual marcante entre a altura da barra azul (MTTF elevado $\approx 6000$\,h) e o ponto vermelho ($\beta$ baixo $\approx 0{,}98$) ocorre unicamente no desbalanceamento do motor. Esse comportamento é justificado pela física do modo de falha: como a taxa de falha é aproximadamente constante ($\beta \approx 1$), as falhas ocorrem de forma dispersa e aleatória ao longo do ciclo (característico da fase de vida útil), resultando em um MTTF estatisticamente superior. Em contrapartida, os modos de desgaste ($\beta$ significativamente maior que $1$) apresentam falhas mais agrupadas em torno de uma idade avançada do ativo, aproximando visualmente o ponto de $\beta$ da altura de suas respectivas barras no gráfico de duplo eixo. Nota-se que rolamento e desalinhamento concentram-se na região de desgaste. O posicionamento conceitual de cada modo na curva da banheira é apresentado na Fig.~\ref{fig:banheira}, ressaltando que a região de mortalidade infantil ($\beta < 1$) permanece vazia, pois os defeitos mecânicos analisados correspondem a processos de fadiga ou estresse operacional progressivos (vida útil ou desgaste).
+supera a Weibull.
+
+A Fig.~\ref{fig:rbanda} apresenta a confiabilidade $R(t)$ da Weibull ajustada
+com a banda de confiança de 95\% obtida por \textit{bootstrap}, que se alarga na
+faixa de maior incerteza.
+
+A Fig.~\ref{fig:resumo} resume o MTTF (eixo esquerdo, barras em azul) e o
+parâmetro de forma $\beta$ da Weibull (eixo direito, pontos em vermelho) dos
+quatro modos. A discrepância visual marcante entre a altura da barra azul (MTTF
+elevado $\approx 6000$\,h) e o ponto vermelho ($\beta$ baixo $\approx 0{,}98$)
+ocorre unicamente no desbalanceamento do motor. Esse comportamento é justificado
+pela física do modo de falha: como a taxa de falha é aproximadamente constante
+($\beta \approx 1$), as falhas ocorrem de forma dispersa e aleatória ao longo do
+ciclo (característico da fase de vida útil), resultando em um MTTF
+estatisticamente superior. Em contrapartida, os modos de desgaste ($\beta$
+significativamente maior que $1$) apresentam falhas mais agrupadas em torno de
+uma idade avançada do ativo, aproximando visualmente o ponto de $\beta$ da altura
+de suas respectivas barras no gráfico de duplo eixo. Nota-se que rolamento e
+desalinhamento concentram-se na região de desgaste.
+
+O posicionamento conceitual de cada modo na curva da banheira é apresentado na
+Fig.~\ref{fig:banheira}, ressaltando que a região de mortalidade infantil
+($\beta < 1$) permanece vazia, pois os defeitos mecânicos analisados correspondem
+a processos de fadiga ou estresse operacional progressivos (vida útil ou
+desgaste).
 
 \begin{figure}[!t]
   \centering
