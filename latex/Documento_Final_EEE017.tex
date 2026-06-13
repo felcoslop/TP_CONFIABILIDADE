@@ -20,6 +20,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{tabularx}
+\usepackage{float}
 
 % Empacotamento de floats: permite mais figuras por pagina e menos paginas
 % so de figuras, eliminando os grandes espacos em branco. flushbottom (padrao
@@ -78,7 +79,7 @@ Belo Horizonte, MG, Brasil}
 % RESUMO
 % =========================================================================
 \begin{abstract}
-Este trabalho aplica métodos clássicos de Engenharia de Confiabilidade a rolamentos sob carga acelerada, usando o conjunto de dados experimental público PRONOSTIA / FEMTO-ST (IEEE PHM 2012), composto por medições de vibração de degradação natural até a falha. O indicador de degradação --- o valor RMS da vibração em banda larga --- é extraído para todo o ciclo de vida. As séries temporais são tratadas como dados de vida exatos (\textit{run-to-failure}). Sobre estes dados ajustam-se as distribuições Exponencial, Weibull e Log-normal por máxima verossimilhança, com seleção por AICc e intervalos de confiança por \textit{bootstrap} ($R=10^4$). Calculam-se MTTF, $R(t)$, taxa de falha $h(t)$ e disponibilidade $A$. O sistema é então modelado por Diagrama de Blocos de Confiabilidade (2 rolamentos em série) e simulado por Monte Carlo nas configurações série, paralelo e \textit{standby}, com verificação analítica da disponibilidade. O parâmetro de forma obtido ($\beta \approx 1{,}80$) é coerente com a literatura de desgaste por fadiga.
+Este trabalho aplica métodos clássicos de Engenharia de Confiabilidade a rolamentos sob carga acelerada, usando o conjunto de dados experimental público PRONOSTIA / FEMTO-ST (IEEE PHM 2012), composto por medições de vibração de degradação natural até a falha. O indicador de degradação, o valor RMS da vibração em banda larga, é extraído para todo o ciclo de vida. As séries temporais são tratadas como dados de vida exatos (\textit{run-to-failure}). Sobre estes dados ajustam-se as distribuições Exponencial, Weibull e Log-normal por máxima verossimilhança, com seleção por AICc e intervalos de confiança por \textit{bootstrap} ($R=10^4$). Calculam-se MTTF, $R(t)$, taxa de falha $h(t)$ e disponibilidade $A$. O sistema é então modelado por Diagrama de Blocos de Confiabilidade (2 rolamentos em série) e simulado por Monte Carlo nas configurações série, paralelo e \textit{standby}, com verificação analítica da disponibilidade. O parâmetro de forma obtido ($\beta \approx 1{,}80$) é coerente com a literatura de desgaste por fadiga.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -115,8 +116,8 @@ de séries de TTF, ajuste de distribuições de vida, \textit{bootstrap}, cálcu
 \section{Revisão da Literatura}
 \label{sec:revisao}
 
-A análise estatística de dados de vida de equipamentos --- tempos até a falha
-e dados censurados --- é tratada de forma abrangente em O'Connor e
+A análise estatística de dados de vida de equipamentos (tempos até a falha
+e dados censurados) é tratada de forma abrangente em O'Connor e
 Kleyner~\cite{oconnor2012} e Colosimo e Giolo~\cite{colosimo2006}. As
 distribuições Weibull, Exponencial e Log-normal são as mais utilizadas em
 confiabilidade de máquinas rotativas; o parâmetro de forma $\beta$ da Weibull é
@@ -133,10 +134,10 @@ fadiga gera impactos de banda larga cuja energia aumenta com a degradação.
 
 A análise estatística de dados de vida e a modelagem de degradação são tratadas
 de forma abrangente por Meeker e Escobar~\cite{meeker1998}. Diferentemente de
-bases de \textit{snapshots} de condição --- nas quais o tempo de falha precisa
-ser estimado por um modelo de degradação ---, o conjunto PRONOSTIA é
+bases de \textit{snapshots} de condição, nas quais o tempo de falha precisa
+ser estimado por um modelo de degradação, o conjunto PRONOSTIA é
 \textit{run-to-failure}: cada rolamento é operado até a falha, fornecendo o tempo
-de vida de forma \textbf{direta e sem censura}.
+de vida de forma direta e sem censura.
 
 O método \textit{bootstrap} para intervalos de confiança em parâmetros de
 distribuições de vida é apresentado por Robert e Casella~\cite{robert2010} e
@@ -152,39 +153,53 @@ por Monte Carlo são fundamentadas em Zio~\cite{zio2013}.
 
 \subsection{A Plataforma e o Conjunto de Dados}
 Utiliza-se o conjunto de dados do \textit{IEEE PHM 2012 Data Challenge}, gerado na
-plataforma experimental \textbf{PRONOSTIA} do Instituto FEMTO-ST~\cite{nectoux2012}.
-A bancada submete um rolamento de esferas a uma \textbf{carga radial} aplicada por um
+plataforma experimental PRONOSTIA do Instituto FEMTO-ST~\cite{nectoux2012}.
+A bancada submete um rolamento de esferas a uma carga radial aplicada por um
 macaco pneumático enquanto um motoredutor mantém a rotação constante. Como a carga
-\textbf{excede a capacidade dinâmica} do rolamento, a degradação por fadiga (trincas e
-descascamento nas pistas, esferas e gaiola) é \textbf{acelerada}, levando cada unidade
-à falha em poucas horas --- um \textit{Ensaio Acelerado de Vida} (ALT).
+excede a capacidade dinâmica do rolamento, a degradação por fadiga (trincas e
+descascamento nas pistas, esferas e gaiola) é acelerada, levando cada unidade
+à falha em poucas horas, caracterizando um Ensaio Acelerado de Vida (ALT).
 
-A instrumentação relevante são \textbf{dois acelerômetros} (horizontal e vertical,
+A instrumentação relevante são dois acelerômetros (horizontal e vertical,
 DYTRAN 3035B, 100\,mV/g) montados radialmente na pista externa. Utiliza-se apenas a
-\textbf{aceleração horizontal}: como a carga é vertical, a estrutura é mais rígida
-nesse eixo, e o sinal horizontal exibe a tendência de degradação mais nítida ---
-escolha padrão na literatura do PRONOSTIA. A aquisição ocorre a \textbf{25,6\,kHz}, em
-\textit{snapshots} de \textbf{2.560 amostras} (0,1\,s) gravados \textbf{a cada 10\,s}.
-O ensaio é interrompido quando a amplitude de vibração ultrapassa \textbf{20\,g}
+aceleração horizontal: como a carga é vertical, a estrutura é mais rígida
+nesse eixo, e o sinal horizontal exibe a tendência de degradação mais nítida,
+escolha padrão na literatura do PRONOSTIA. A aquisição ocorre a 25,6\,kHz, em
+\textit{snapshots} de 2.560 amostras (0,1\,s) gravados a cada 10\,s.
+O ensaio é interrompido quando a amplitude de vibração ultrapassa 20\,g
 (falha funcional, definida para evitar dano catastrófico à bancada).
 
-São \textbf{17 rolamentos} levados à falha, distribuídos em \textbf{três condições de
-operação} (Tabela~\ref{tab:condicoes}). Por serem ensaios \textit{run-to-failure}, os
-dados refletem a \textbf{vida total} de cada unidade: o tempo até a falha é obtido
-diretamente, \textbf{sem censura}. Os 17 são tratados como uma única população de
+São 17 rolamentos levados à falha, distribuídos em três condições de
+operação (Tabela~\ref{tab:condicoes}). Por serem ensaios \textit{run-to-failure}, os
+dados refletem a vida total de cada unidade: o tempo até a falha é obtido
+diretamente, sem censura. Os 17 são tratados como uma única população de
 ``rolamento sob carga acelerada''.
 
 \begin{table}[!htbp]
   \centering
   \caption{Condições de operação dos 17 rolamentos (PRONOSTIA).}
   \label{tab:condicoes}
-  \begin{tabular}{cccc}
+  \begin{tabular}{lccc}
     \toprule
-    Condição & Rotação [RPM] & Carga [N] & Rolamentos \\
+    Rolamento & Condição & Rotação [RPM] & Carga [N] \\
     \midrule
-    1 & 1800 & 4000 & 7 (\texttt{Bearing1\_1..1\_7}) \\
-    2 & 1650 & 4200 & 7 (\texttt{Bearing2\_1..2\_7}) \\
-    3 & 1500 & 5000 & 3 (\texttt{Bearing3\_1..3\_3}) \\
+    \texttt{Bearing1\_1} & 1 & 1800 & 4000 \\
+    \texttt{Bearing1\_2} & 1 & 1800 & 4000 \\
+    \texttt{Bearing1\_3} & 1 & 1800 & 4000 \\
+    \texttt{Bearing1\_4} & 1 & 1800 & 4000 \\
+    \texttt{Bearing1\_5} & 1 & 1800 & 4000 \\
+    \texttt{Bearing1\_6} & 1 & 1800 & 4000 \\
+    \texttt{Bearing1\_7} & 1 & 1800 & 4000 \\
+    \texttt{Bearing2\_1} & 2 & 1650 & 4200 \\
+    \texttt{Bearing2\_2} & 2 & 1650 & 4200 \\
+    \texttt{Bearing2\_3} & 2 & 1650 & 4200 \\
+    \texttt{Bearing2\_4} & 2 & 1650 & 4200 \\
+    \texttt{Bearing2\_5} & 2 & 1650 & 4200 \\
+    \texttt{Bearing2\_6} & 2 & 1650 & 4200 \\
+    \texttt{Bearing2\_7} & 2 & 1650 & 4200 \\
+    \texttt{Bearing3\_1} & 3 & 1500 & 5000 \\
+    \texttt{Bearing3\_2} & 3 & 1500 & 5000 \\
+    \texttt{Bearing3\_3} & 3 & 1500 & 5000 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -200,52 +215,52 @@ A metodologia tem seis etapas, implementadas em Python (bibliotecas \texttt{nump
 
 \subsection{Indicador de Degradação}
 Para cada \textit{snapshot} computa-se o valor RMS do sinal de vibração em banda de
-frequência, que mede a \textbf{energia vibratória} --- um indicador clássico de
+frequência, que mede a energia vibratória, um indicador clássico de
 severidade de rolamento. Estima-se a densidade espectral de potência (PSD) por Welch,
 $S_{xx}(f)$, e integra-se a banda:
 \begin{equation}
 \mathrm{RMS}_{banda} = \sqrt{\textstyle\int_{f_1}^{f_2} S_{xx}(f)\,df}.
 \end{equation}
-Adota-se uma \textbf{banda larga (10\,Hz--10\,kHz)}: como a fadiga gera impactos em
+Adota-se uma banda larga (10\,Hz--10\,kHz): como a fadiga gera impactos em
 todo o espectro, integrar quase toda a faixa captura melhor a severidade do que uma
 banda estreita. Cada \textit{snapshot} (2.560 amostras) é assim reduzido a um número.
 
 \subsection{Extração das Séries de TTF}
 Como os \textit{snapshots} são gravados a cada 10\,s e o ensaio termina na falha
-($>20$\,g), o \textbf{tempo do último \textit{snapshot}} de cada rolamento é o seu
-tempo até a falha (TTF). Não há censura (\textit{censura}$=0$ para todas as 17
-unidades). As 17 vidas vão de \textbf{0,64\,h} a \textbf{7,78\,h}.
+($>20$\,g), o tempo do último \textit{snapshot} de cada rolamento é o seu
+tempo até a falha (TTF). Não há censura (censura$=0$ para todas as 17
+unidades). As 17 vidas vão de 0,64\,h a 7,78\,h.
 
 \subsection{Ajuste de Distribuições e Seleção}
-Sobre as 17 TTF ajustam-se, por \textbf{máxima verossimilhança} (MLE)~\cite{colosimo2006},
-três distribuições de vida: \textbf{Exponencial} (taxa de falha constante $\lambda$),
-\textbf{Weibull-2P} (forma $\beta$, escala/vida característica $\eta$) e
-\textbf{Log-normal} (média $\mu$ e desvio $\sigma$ do $\ln t$). O MLE escolhe os
+Sobre as 17 TTF ajustam-se, por máxima verossimilhança (MLE)~\cite{colosimo2006},
+três distribuições de vida: Exponencial (taxa de falha constante $\lambda$),
+Weibull-2P (forma $\beta$, escala/vida característica $\eta$) e
+Log-normal (média $\mu$ e desvio $\sigma$ do $\ln t$). O MLE escolhe os
 parâmetros que maximizam a probabilidade de observar as 17 vidas medidas. A seleção do
-modelo usa o \textbf{AICc} (Critério de Informação de Akaike corrigido para amostra
+modelo usa o AICc (Critério de Informação de Akaike corrigido para amostra
 pequena), que mede o ajuste penalizando o número de parâmetros $k$:
 \begin{equation}
 \mathrm{AICc} = 2k - 2\ln(\hat{L}) + \frac{2k(k+1)}{n-k-1},
 \end{equation}
-vencendo o \textbf{menor} valor; verifica-se ainda por Kolmogorov--Smirnov. Os pontos
+vencendo o menor valor; verifica-se ainda por Kolmogorov--Smirnov. Os pontos
 empíricos da CDF usam os \textit{median ranks} de Benard, $(i-0{,}3)/(n+0{,}4)$.
 
 \subsection{Intervalos de Confiança e Índices}
-Os intervalos de 95\% de $\beta$ e $\eta$ vêm de \textbf{\textit{bootstrap} não
-paramétrico} com $R=10^4$ reamostragens: a cada iteração reamostram-se, com reposição,
+Os intervalos de 95\% de $\beta$ e $\eta$ vêm de \textit{bootstrap} não
+paramétrico com $R=10^4$ reamostragens: a cada iteração reamostram-se, com reposição,
 17 TTF da amostra original e reajusta-se a Weibull; o IC é o intervalo entre os
 percentis 2,5\% e 97,5\% das $10^4$ estimativas~\cite{robert2010}. Calculam-se então:
-o \textbf{MTTF} (média da distribuição vencedora), a confiabilidade
+o MTTF (média da distribuição vencedora), a confiabilidade
 $R(t)=e^{-(t/\eta)^{\beta}}$ (probabilidade de sobreviver além de $t$), a taxa de falha
 instantânea $h(t)=f(t)/R(t)$ e a disponibilidade
 $A=\mathrm{MTTF}/(\mathrm{MTTF}+\mathrm{MTTR})$, com $\mathrm{MTTR}=24$\,h (valor de
 engenharia para a substituição de um rolamento).
 
 \subsection{Modelo de Sistema e Monte Carlo}
-Avalia-se um Diagrama de Blocos de Confiabilidade hipotético com \textbf{dois
-rolamentos}. Por inversão da CDF ($t=F^{-1}(U)$) simulam-se $N=10^5$ tempos de falha do
-sistema e comparam-se três arquiteturas: \textbf{série} (uma unidade,
-$t=\min(t_1,t_2)$), \textbf{paralelo} ativo ($t=\max(t_A,t_B)$) e \textbf{\textit{standby}}
+Avalia-se um Diagrama de Blocos de Confiabilidade hipotético com dois
+rolamentos. Por inversão da CDF ($t=F^{-1}(U)$) simulam-se $N=10^5$ tempos de falha do
+sistema e comparam-se três arquiteturas: série (uma unidade,
+$t=\min(t_1,t_2)$), paralelo ativo ($t=\max(t_A,t_B)$) e \textit{standby}
 a frio (a reserva entra após a 1ª falha, $t=t_A+t_B$). A disponibilidade é verificada
 analiticamente: série $A=A_1A_2$, paralelo $1-(1-A)^2$ e \textit{standby}
 $(\mu^2+\mu\lambda)/(\mu^2+\mu\lambda+\lambda^2)$, com $\lambda$ taxa de falha e $\mu$
@@ -258,9 +273,9 @@ taxa de reparo~\cite{zio2013}.
 
 \subsection{Degradação e Tempos de Falha}
 A Fig.~\ref{fig:assinatura} mostra a evolução do indicador RMS dos 17 rolamentos: a
-vibração permanece baixa durante a maior parte da vida e \textbf{dispara} na fase final,
+vibração permanece baixa durante a maior parte da vida e dispara na fase final,
 assinatura típica de fadiga. Os TTF resultantes variam de 0,64\,h a 7,78\,h, com forte
-dispersão entre unidades --- daí a necessidade de uma distribuição de vida, e não de um
+dispersão entre unidades, daí a necessidade de uma distribuição de vida, e não de um
 valor único.
 
 \begin{figure}[!htbp]
@@ -271,10 +286,10 @@ valor único.
 \end{figure}
 
 \subsection{Distribuição de Vida e Índices}
-A Tabela~\ref{tab:resultados} consolida os resultados. A distribuição \textbf{Weibull}
+A Tabela~\ref{tab:resultados} consolida os resultados. A distribuição Weibull
 apresentou o melhor ajuste (menor AICc), o que é coerente com a literatura de vida de
 rolamentos. O parâmetro de forma $\beta \approx 1{,}80$ ($>1$) indica que o rolamento se
-situa na região de \textbf{desgaste progressivo} da curva da banheira (taxa de falha
+situa na região de desgaste progressivo da curva da banheira (taxa de falha
 crescente), confirmando o mecanismo de fadiga. A Fig.~\ref{fig:bootstrap} mostra as
 distribuições \textit{bootstrap} de $\beta$ e $\eta$ usadas para o IC de 95\%.
 
@@ -291,6 +306,27 @@ distribuições \textit{bootstrap} de $\beta$ e $\eta$ usadas para o IC de 95\%.
     \bottomrule
   \end{tabular}}
 \end{table}
+
+Cada coluna da Tabela~\ref{tab:resultados} tem o seguinte significado e origem:
+\begin{itemize}
+  \item $\beta$ (forma da Weibull): obtido por máxima verossimilhança sobre os 17 TTF.
+  Mede como a taxa de falha evolui no tempo; $\beta=1{,}80>1$ indica taxa
+  crescente, ou seja, falha por desgaste/fadiga progressiva: o
+  rolamento fica mais propenso a falhar quanto mais opera.
+  \item IC 95\% de $\beta$ $[1{,}39;\,2{,}88]$: intervalo de confiança obtido por
+  \textit{bootstrap} ($R=10^4$ reamostragens). Como todo o intervalo está acima de~1,
+  conclui-se com 95\% de confiança que o regime é mesmo de desgaste (e não aleatório).
+  \item $\eta$ (escala/vida característica, em horas): também do ajuste da Weibull. É o
+  tempo em que $\approx 63\%$ das unidades já falharam; aqui $\eta\approx4{,}5$\,h.
+  \item MTTF (tempo médio até a falha): a média da distribuição vencedora
+  ($\approx4{,}0$\,h). Resume a vida esperada de um rolamento sob a carga acelerada.
+  \item $A$ (disponibilidade): $A=\mathrm{MTTF}/(\mathrm{MTTF}+\mathrm{MTTR})$, com
+  $\mathrm{MTTR}=24$\,h. O valor baixo ($0{,}1449$) decorre de o MTTF acelerado ser da
+  mesma ordem do tempo de reparo (ver discussão).
+\end{itemize}
+Em conjunto, esses índices indicam um componente que envelhece (não falha de
+forma puramente aleatória) e cuja vida, sob a carga extrema do ensaio, é curta e bem
+caracterizada por uma Weibull de desgaste.
 
 \begin{figure}[!htbp]
   \centering
@@ -317,26 +353,35 @@ confiança \textit{bootstrap}.
   \label{fig:rt}
 \end{figure}
 
+A banda em torno de $R(t)$ na Fig.~\ref{fig:rt} é gerada a partir das $R=10^4$
+reamostras do \textit{bootstrap}. A curva central usa o par estimado $(\beta,\eta)$; cada
+reamostra fornece um par $(\beta_b,\eta_b)$ e, com ele, uma curva de confiabilidade
+inteira $R_b(t)=\exp[-(t/\eta_b)^{\beta_b}]$. Para cada instante $t$ tomam-se os
+percentis 2,5\% e 97,5\% entre as $10^4$ curvas, e esses limites desenham as bordas
+inferior e superior da banda. A largura da banda mede, portanto, a incerteza estatística
+da estimativa: quanto mais estreita, mais confiável é a curva $R(t)$ obtida das 17
+amostras.
+
 \subsection{Sistema com 2 Rolamentos}
 As configurações redundantes elevam a confiabilidade frente ao arranjo em série
-(Fig.~\ref{fig:sistema}). Na missão de 2\,h, $R$ sobe de \textbf{0,636} (série) para
-\textbf{0,869} (paralelo) e \textbf{0,965} (\textit{standby}); a disponibilidade do
-conjunto sobe de \textbf{0,021} para \textbf{0,041} e \textbf{0,113}. O MTTF do conjunto
+(Fig.~\ref{fig:sistema}). Na missão de 2\,h, $R$ sobe de 0,636 (série) para
+0,869 (paralelo) e 0,965 (\textit{standby}); a disponibilidade do
+conjunto sobe de 0,021 para 0,041 e 0,113. O MTTF do conjunto
 em série é de $\approx$3\,h. A ordenação \textit{standby} $>$ paralelo $>$ série é a
 esperada, pois o \textit{standby} soma as vidas das duas unidades.
 
 \subsection{Discussão}
 Os valores absolutos de MTTF ($\approx$4\,h) e disponibilidade ($\approx$14\%) são
-\textbf{baixos por construção}: trata-se de um \textbf{ensaio acelerado} (ALT), em que
+baixos por construção: trata-se de um ensaio acelerado (ALT), em que
 a carga radial colossal força a falha em horas, e o MTTF fica da mesma ordem de grandeza
-do MTTR de 24\,h adotado. Esses números \textbf{não representam} a vida de campo de um
-rolamento (anos), mas validam a \textbf{metodologia}: a Weibull de desgaste, o IC
+do MTTR de 24\,h adotado. Esses números não representam a vida de campo de um
+rolamento (anos), mas validam a metodologia: a Weibull de desgaste, o IC
 estreito por \textit{bootstrap} e o ganho de confiabilidade por redundância são
 resultados consistentes e fisicamente plausíveis. Uma extrapolação ao cenário real
 exigiria um modelo carga--vida (ex.\ $L\propto(C/P)^p$, com $p=3$ para esferas) para
-converter a vida acelerada à carga nominal --- via natural de trabalho futuro.
+converter a vida acelerada à carga nominal, via natural de trabalho futuro.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\columnwidth]{p6_sistema_R.png}
   \caption{Confiabilidade $R(t)$ do sistema (2 rolamentos) por Monte Carlo nas três configurações.}
@@ -347,24 +392,28 @@ converter a vida acelerada à carga nominal --- via natural de trabalho futuro.
 % V. CONCLUSAO
 % =========================================================================
 \section{Conclusão}
-Demonstrou-se uma rota \textbf{reprodutível} para derivar índices clássicos de
+Demonstrou-se uma rota reprodutível para derivar índices clássicos de
 confiabilidade a partir de dados reais de vibração \textit{run-to-failure} do dataset
 PRONOSTIA, aplicando diretamente os métodos da disciplina: extração de TTF, ajuste de
 distribuições por MLE com seleção por AICc, IC por \textit{bootstrap}, índices
 ($R(t)$, $h(t)$, $A$) e simulação de Monte Carlo de um DBC com redundância. A
-\textbf{Weibull} foi a melhor distribuição, com $\beta\approx1{,}80$ coerente com falha
-por \textbf{desgaste/fadiga} de máquinas rotativas, e a redundância (sobretudo
+Weibull foi a melhor distribuição, com $\beta\approx1{,}80$ coerente com falha
+por desgaste/fadiga de máquinas rotativas, e a redundância (sobretudo
 \textit{standby}) elevou expressivamente a confiabilidade de missão.
 
-\textbf{Limitações:} (i) os valores de MTTF e disponibilidade refletem um ensaio
-acelerado e não a vida nominal de campo; (ii) o sistema de 2 rolamentos é hipotético,
-para ilustrar o efeito de redundância; (iii) o MTTR de 24\,h é uma premissa de
-engenharia. \textbf{Trabalho futuro:} extrapolar a vida acelerada à carga nominal por um
-modelo carga--vida (Lundberg--Palmgren) e analisar separadamente cada condição de
-operação.
+Limitações:
+\begin{itemize}
+  \item[(i)] os valores de MTTF e disponibilidade refletem um ensaio acelerado e não a
+  vida nominal de campo;
+  \item[(ii)] o sistema de 2 rolamentos é hipotético, para ilustrar o efeito de
+  redundância;
+  \item[(iii)] o MTTR de 24\,h é uma premissa de engenharia.
+\end{itemize}
+Trabalho futuro: extrapolar a vida acelerada à carga nominal por um modelo carga--vida
+(Lundberg--Palmgren) e analisar separadamente cada condição de operação.
 
 \smallskip
-\noindent\textbf{Repositório:} código-fonte, figuras e documento em
+\noindent Repositório: código-fonte, figuras e documento em
 \href{https://github.com/felcoslop/TP_CONFIABILIDADE}{\texttt{github.com/felcoslop/TP\_CONFIABILIDADE}}.
 
 % =========================================================================
@@ -405,7 +454,7 @@ E. Zio,
 Analysis}. London: Springer, 2013.
 
 \bibitem{reid2022}
-M. Reid, ``\textit{reliability} --- a Python library for reliability
+M. Reid, ``\textit{reliability}: a Python library for reliability
 engineering,'' Zenodo, 2024.
 doi: \href{https://doi.org/10.5281/zenodo.3938000}{10.5281/zenodo.3938000}.
 
