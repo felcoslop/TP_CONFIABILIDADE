@@ -7,6 +7,7 @@ import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import numpy as np
 
 import config
@@ -24,17 +25,27 @@ def _salvar(fig, nome):
 
 
 # =============================================================================
-# Passo 1 - assinatura de degradacao (indicador vs severidade)
+# Passo 1 - assinatura de degradacao (indicador vs tempo)
 # =============================================================================
-def fig_assinatura(modo, rotulos, listas_valores):
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-    ax.boxplot(listas_valores, tick_labels=rotulos, showmeans=True)
-    ax.set_ylabel("RMS na banda  [g]")
-    ax.set_xlabel("condicao (saudavel -> severidade crescente)")
-    ax.set_title("Assinatura de degradacao - %s" % modo["nome"])
-    ax.grid(True, axis="y", alpha=0.3)
-    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
-    return _salvar(fig, "p1_assinatura_%s.png" % modo["id"])
+def fig_assinatura_pronostia(df):
+    fig, ax = plt.subplots(figsize=(9, 5))
+    
+    # Plota a curva de degradacao de cada rolamento
+    for rolamento, dados in df.groupby("rolamento"):
+        ax.plot(dados["tempo_horas"], dados["rms"], alpha=0.6, label=rolamento)
+        
+    ax.set_ylabel("RMS na banda [g]")
+    ax.set_xlabel("Tempo de operação [horas]")
+    ax.set_title("Evolução da Degradação - PRONOSTIA (17 rolamentos)")
+    ax.grid(True, alpha=0.3)
+    
+    # Colocar legenda fora do grafico para nao poluir
+    ax.legend(bbox_to_anchor=(1.01, 1), loc='upper left', fontsize=8, ncol=1)
+    
+    # Ajusta bordas para caber a legenda
+    fig.subplots_adjust(right=0.75)
+    
+    return _salvar(fig, "p1_assinatura_pronostia_all.png")
 
 
 # =============================================================================
@@ -168,7 +179,7 @@ def fig_sistema_R(t, curvas):
         ax.plot(t, R, estilos.get(nome, "-"), label=nome, lw=2)
     ax.set_xlabel("t  [h]"); ax.set_ylabel("R do sistema")
     ax.set_ylim(0, 1)
-    ax.set_title("Confiabilidade do sistema motor-bomba (Monte Carlo)")
+    ax.set_title("Confiabilidade do sistema (2 rolamentos PRONOSTIA em série/paralelo)")
     ax.legend(); ax.grid(True, alpha=0.3)
     return _salvar(fig, "p6_sistema_R.png")
 
@@ -262,18 +273,12 @@ def fig_banheira_esquema():
                     label=u"Vida útil / taxa constante (β≈1)")
     ax.fill_between(t[300:], h[300:], alpha=0.15, color="#4C72B0",
                     label=u"Desgaste (β>1)")
-    ax.annotate(u"Desbalanceamento\nmotor (β=0,98)",
-                xy=(50, h[250]), xytext=(20, h[250] + 0.8),
-                arrowprops=dict(arrowstyle="->"), fontsize=9, color="#55A868")
-    ax.annotate(u"Desbalanceamento\nbomba (β=1,68)\nDesalinhamento (β=2,92)",
-                xy=(72, h[360]), xytext=(45, h[360] + 1.2),
-                arrowprops=dict(arrowstyle="->"), fontsize=9, color="#4C72B0")
-    ax.annotate(u"Rolamento BPFI\n(β=3,82)",
+    ax.annotate(u"Desgaste Natural\n(PRONOSTIA)",
                 xy=(88, h[440]), xytext=(60, h[440] + 2.0),
-                arrowprops=dict(arrowstyle="->"), fontsize=9, color="#4C72B0")
+                arrowprops=dict(arrowstyle="->"), fontsize=10, color="#4C72B0")
     ax.set_xlabel(u"Tempo de operação  (escala relativa)")
     ax.set_ylabel(u"Taxa de falha h(t)")
-    ax.set_title(u"Curva da banheira: posicionamento dos modos estudados\n"
+    ax.set_title(u"Curva da banheira: posicionamento do desgaste\n"
                  u"(baseado no parâmetro β da distribuição Weibull ajustada)")
     ax.legend(fontsize=9, loc="upper right")
     ax.set_ylim(0, None)

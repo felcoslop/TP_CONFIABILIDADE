@@ -2,11 +2,8 @@
 """
 Passo 1 - Extracao de features.
 
-Le os CSVs grandes do dataset e calcula o indicador de degradacao (RMS na banda
-de cada modo) para cada repeticao de cada condicao. Salva tudo numa tabela
-compacta (features.csv) pra que os passos seguintes nao precisem reler os CSVs.
-
-E o unico passo caro (le os arquivos de centenas de MB).
+Le os CSVs do dataset PRONOSTIA e calcula o indicador de degradacao (RMS)
+para cada snapshot de cada rolamento.
 """
 import os
 import pandas as pd
@@ -18,41 +15,34 @@ import graficos
 
 def extrair():
     utils.garantir_pastas()
-    linhas = []  # vai virar o features.csv (formato longo)
+    linhas = []  # vai virar o features.csv
 
-    for modo in config.MODOS:
-        print("  [features] %s ..." % modo["nome"])
-        rotulos, listas = [], []
-
-        # condicao saudavel (nivel 0): junta as 3 medicoes healthy
-        valores_saud = []
-        for h in modo["healthy"]:
-            v = utils.band_rms_repeticoes(modo["motor"], modo["vel"], h,
-                                          modo["canal"], modo["banda"])
-            valores_saud.extend(v)
-            for val in v:
-                linhas.append([modo["id"], h, 0, val])
-        rotulos.append("saudavel")
-        listas.append(valores_saud)
-
-        # severidades (nivel 1, 2, 3, ...)
-        for nivel, sev in enumerate(modo["severidades"], start=1):
-            if not utils.existe_condicao(modo["motor"], modo["vel"], sev, modo["canal"]):
-                print("    (aviso) condicao ausente, pulando:", sev)
-                continue
-            v = utils.band_rms_repeticoes(modo["motor"], modo["vel"], sev,
-                                          modo["canal"], modo["banda"])
-            for val in v:
-                linhas.append([modo["id"], sev, nivel, val])
-            rotulos.append("sev %d" % nivel)
-            listas.append(list(v))
-
-        # grafico da assinatura de degradacao deste modo
-        graficos.fig_assinatura(modo, rotulos, listas)
-
-    df = pd.DataFrame(linhas, columns=["modo", "condicao", "nivel", "valor"])
+    print("  [features] Extraindo RMS dos 17 rolamentos...")
+    
+    # Vamos usar apenas a banda definida em config.MODOS[0]
+    modo = config.MODOS[0]
+    
+    for r in config.ROLAMENTOS:
+        nome = r["nome"]
+        print(f"    -> Processando {nome} ({r['set']}) ...")
+        
+        rms_vals, n_arquivos_total = utils.rms_por_snapshot(r["set"], nome, modo["banda"])
+        
+        # Em modo rapido rms_vals tem menos pontos, mas n_arquivos_total eh o real
+        passo_amostragem = 10 if config.MODO_RAPIDO else 1
+        
+        for idx, val in enumerate(rms_vals):
+            snapshot_real = idx * passo_amostragem
+            tempo_horas = (snapshot_real * config.SNAPSHOT_DURACAO) / 3600.0
+            linhas.append([nome, r["condicao"], snapshot_real, tempo_horas, val])
+        
+    df = pd.DataFrame(linhas, columns=["rolamento", "condicao", "snapshot", "tempo_horas", "rms"])
     caminho = os.path.join(config.SAIDA_TAB, "features.csv")
     df.to_csv(caminho, index=False)
+    
+    # Gerar grafico de degradacao global
+    graficos.fig_assinatura_pronostia(df)
+    
     print("  [features] salvo:", caminho, "(%d linhas)" % len(df))
     return df
 

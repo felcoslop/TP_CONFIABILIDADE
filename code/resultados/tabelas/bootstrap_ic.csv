@@ -1,5 +1,2 @@
 modo,beta_ic_inf,beta_ic_sup,eta_ic_inf,eta_ic_sup
-bpfi,3.537,4.134,4117.6,4443.0
-unbal_motor,0.953,1.01,4313.0,4844.5
-unbal_pump,1.624,1.735,1857.6,1970.9
-align_par,2.833,3.02,3043.9,3148.8
+pronostia_all,1.389,2.88,3.3,5.8

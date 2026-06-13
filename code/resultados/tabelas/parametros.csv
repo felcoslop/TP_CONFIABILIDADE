@@ -1,5 +1,2 @@
 modo,nome,melhor_dist,weibull_beta,weibull_eta,exp_lambda,logn_mu,logn_sigma,aicc_weibull,aicc_exp,aicc_logn
-bpfi,Rolamento - pista interna (BPFI),Lognormal,3.817,4269.9,8.01e-05,8.37,0.486,8943.8,9516.2,8934.9
-unbal_motor,Desbalanceamento no motor,Lognormal,0.98,4566.7,0.0002323,7.947,1.226,26448.9,26452.4,26180.1
-unbal_pump,Desbalanceamento na bomba,Lognormal,1.679,1913.5,0.00054664,7.253,0.724,28840.1,29384.1,28756.8
-align_par,Desalinhamento paralelo,Lognormal,2.923,3096.3,0.00032008,7.864,0.411,29218.7,31087.2,29098.7
+pronostia_all,Rolamento (PRONOSTIA),Weibull,1.802,4.6,0.24605983,1.185,0.718,79.7,83.9,82.1

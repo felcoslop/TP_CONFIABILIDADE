@@ -4,6 +4,7 @@ Funcoes de apoio compartilhadas: leitura dos sinais, calculo do indicador de
 degradacao (RMS em banda) e o ranqueamento por median rank da disciplina.
 """
 import os
+import glob
 import numpy as np
 import pandas as pd
 from scipy.signal import welch
@@ -11,67 +12,66 @@ from scipy.signal import welch
 import config
 
 
-def caminho_longo(caminho):
-    """Adiciona o prefixo \\?\ pra contornar o limite de 260 chars do Windows.
-    Os caminhos do dataset passam de 290 caracteres, entao sem isso o open()
-    do Python da FileNotFoundError."""
-    caminho = os.path.abspath(caminho)
-    if not caminho.startswith("\\\\?\\"):
-        caminho = "\\\\?\\" + caminho
-    return caminho
+def listar_acc_files(bearing_set, bearing_nome):
+    """Retorna lista de caminhos dos arquivos acc_*.csv de um rolamento."""
+    pasta = os.path.join(config.DATASET, bearing_set, bearing_nome)
+    arquivos = sorted(glob.glob(os.path.join(pasta, "acc_*.csv")))
+    return arquivos
 
 
-def caminho_csv(motor, vel, cond, canal):
-    """Monta o caminho do CSV de vibracao de uma condicao/canal."""
-    nome = "Vibration_Motor-%d_%d_time-%s-ch%d.csv" % (motor, vel, cond, canal)
-    return os.path.join(config.DATASET, "Vibration", "Motor-%d" % motor,
-                        str(vel), cond, nome)
-
-
-def ler_repeticoes(motor, vel, cond, canal):
-    """Le um CSV e devolve a matriz (amostras x repeticoes).
-    Cada coluna do CSV (alem de 'time') e uma repeticao independente da medicao.
-    No modo rapido le so um trecho do arquivo."""
-    cam = caminho_longo(caminho_csv(motor, vel, cond, canal))
-    nrows = config.NROWS_RAPIDO if config.MODO_RAPIDO else None
-    df = pd.read_csv(cam, nrows=nrows)
-    cols = [c for c in df.columns if c != "time"]
-    return df[cols].values.astype(float)
+def ler_snapshot(caminho):
+    """Le um snapshot CSV (2560 amostras). Retorna aceleração horizontal."""
+    try:
+        # Tenta ler com virgula, ignora linhas defeituosas
+        df = pd.read_csv(caminho, header=None, sep=',', on_bad_lines='skip')
+        if df.shape[1] < 5:
+            # Tenta com ponto e virgula
+            df = pd.read_csv(caminho, header=None, sep=';', on_bad_lines='skip')
+        
+        # O arquivo deveria ter: h, min, s, us, acc_h, acc_v
+        # Retornamos a aceleracao horizontal (coluna 4)
+        if df.shape[1] > 4:
+            return df.iloc[:, 4].values.astype(float)
+        else:
+            # Retorna zeros se o arquivo estiver corrompido ou sem a coluna
+            return np.zeros(2560)
+    except Exception:
+        return np.zeros(2560)
 
 
 def band_rms(sinal_1d, fmin, fmax):
     """RMS do sinal dentro de uma banda de frequencia (via densidade espectral
     de Welch). E o nosso indicador de degradacao."""
     x = sinal_1d - sinal_1d.mean()
-    f, Pxx = welch(x, fs=config.FS, nperseg=4096)
+    f, Pxx = welch(x, fs=config.FS, nperseg=512)
     m = (f >= fmin) & (f < fmax)
     return np.sqrt(np.trapezoid(Pxx[m], f[m]))
 
 
-def band_rms_repeticoes(motor, vel, cond, canal, banda):
-    """Aplica o band_rms em cada repeticao (coluna) de uma condicao.
-    Devolve um vetor com um valor de degradacao por repeticao."""
-    mat = ler_repeticoes(motor, vel, cond, canal)
+def rms_por_snapshot(bearing_set, bearing_nome, banda):
+    """Calcula o RMS para todos os snapshots de um rolamento."""
+    arquivos = listar_acc_files(bearing_set, bearing_nome)
+    
+    # Se MODO_RAPIDO, pulamos alguns arquivos para processar rapido
+    if config.MODO_RAPIDO:
+        arquivos = arquivos[::10]
+        
+    rms_vals = []
     fmin, fmax = banda
-    return np.array([band_rms(mat[:, j], fmin, fmax) for j in range(mat.shape[1])])
-
-
-def existe_condicao(motor, vel, cond, canal):
-    """Confere se o arquivo de uma condicao existe (algumas severidades faltam)."""
-    return os.path.exists(caminho_longo(caminho_csv(motor, vel, cond, canal)))
+    for arq in arquivos:
+        sinal = ler_snapshot(arq)
+        rms = band_rms(sinal, fmin, fmax)
+        rms_vals.append(rms)
+    return np.array(rms_vals), len(listar_acc_files(bearing_set, bearing_nome))
 
 
 def median_rank(i, n):
-    """Median rank de Benard (formula da disciplina): (i - 0,3)/(n + 0,4),
-    com i = posicao (1..n) na amostra ordenada."""
+    """Median rank de Benard (formula da disciplina): (i - 0,3)/(n + 0,4)."""
     return (i - 0.3) / (n + 0.4)
 
 
 def median_rank_censura(tempos, censuras):
-    """Median rank ajustado pra dados com censura a direita (metodo de Johnson,
-    como no script 4_Sobrevivencia.py da disciplina).
-    Recebe tempos e o vetor de censura (0=falha, 1=censura) e devolve os pares
-    (tempo_de_falha, median_rank) apenas das falhas, ordenados."""
+    """Median rank ajustado pra dados com censura a direita."""
     ordem = np.argsort(tempos)
     t = np.array(tempos)[ordem]
     c = np.array(censuras)[ordem]

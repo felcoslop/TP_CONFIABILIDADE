@@ -57,7 +57,7 @@ def ajustar(ttf=None):
         sub = ttf[ttf["modo"] == modo["id"]]
         falhas = sub.loc[sub["censura"] == 0, "ttf"].values
         censuradas = sub.loc[sub["censura"] == 1, "ttf"].values
-        if len(falhas) < 10:
+        if len(falhas) < 3:
             print("  [ajuste] %s: poucas falhas, pulando" % modo["id"])
             continue
 

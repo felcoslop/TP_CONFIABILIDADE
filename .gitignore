@@ -6,21 +6,15 @@ course_materials/
 # =============================================================================
 # latex/ — manter apenas .tex e .pdf
 # =============================================================================
-latex/*.aux
-latex/*.log
-latex/*.out
-latex/*.bbl
-latex/*.blg
-latex/*.fls
-latex/*.fdb_latexmk
-latex/*.synctex.gz
-latex/*.toc
-latex/*.lof
-latex/*.lot
-latex/*.dvi
-latex/*.idx
-latex/*.ilg
-latex/*.ind
+latex/*
+!latex/*.tex
+!latex/*.pdf
+latex/apresentacao/*
+!latex/apresentacao/*.tex
+!latex/apresentacao/*.pdf
+latex/relatorio/*
+!latex/relatorio/*.tex
+!latex/relatorio/*.pdf
 latex/_preview/
 latex/test_subcaption.*
 
@@ -38,6 +32,15 @@ data/dataset_bruinsma2024/README.txt
 # =============================================================================
 # ignora os CSVs (muito grandes), mas preserva a estrutura de pastas via .gitkeep
 data/database_tiny/Vibration/**/*.csv
+
+# =============================================================================
+# Dataset PRONOSTIA / IEEE PHM 2012 — pastas pesadas (baixar do Kaggle)
+# instrucoes em data/dataset_full/ieee-phm-2012-data-challenge-dataset-master/README.md
+# mantem os .md e o PDF do desafio, ignora apenas as pastas de CSVs
+# =============================================================================
+data/dataset_full/ieee-phm-2012-data-challenge-dataset-master/Learning_set/
+data/dataset_full/ieee-phm-2012-data-challenge-dataset-master/Test_set/
+data/dataset_full/ieee-phm-2012-data-challenge-dataset-master/Full_Test_Set/
 
 # =============================================================================
 # Python
