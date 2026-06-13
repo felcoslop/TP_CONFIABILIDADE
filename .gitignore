@@ -9,6 +9,7 @@ course_materials/
 latex/*
 !latex/*.tex
 !latex/*.pdf
+!latex/apresentacao/
 latex/apresentacao/*
 !latex/apresentacao/*.tex
 !latex/apresentacao/*.pdf
