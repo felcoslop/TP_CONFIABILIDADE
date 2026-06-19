@@ -251,7 +251,7 @@
 
 % Slide: ajuste de distribuicoes (parte 1 - parametros)
 \begin{frame}{Passo 3: ajuste de distribuições de vida}
-    \small
+    \footnotesize
     Sobre as 17 vidas (TTF), ajusta-se por \textbf{máxima verossimilhança}:
     \begin{itemize}\setlength{\itemsep}{1pt}
         \item Exponencial ($\lambda$);\quad Weibull ($\beta$, $\eta$);\quad Lognormal ($\mu$, $\sigma$).
@@ -270,9 +270,9 @@
         \bottomrule
     \end{tabular}
     \normalsize
-    \vspace{0.15cm}
-    \begin{block}{Como são obtidos (máxima verossimilhança --- MLE)}
-        \footnotesize Procuram-se os valores dos parâmetros que \textbf{maximizam a probabilidade} de observar exatamente os 17 TTFs medidos. Ou seja, cada distribuição é ``encaixada'' nos dados reais; os parâmetros saem diretamente dessas 17 vidas.
+    \vspace{0.1cm}
+    \begin{block}{O que é verossimilhança e como entra aqui (MLE)}
+        \scriptsize \textbf{Verossimilhança} $=$ a probabilidade de os dados observados terem sido gerados por uma dada distribuição, vista como \textbf{função dos parâmetros}: $L(\theta)=\prod_{i=1}^{17} f(t_i;\theta)$ (produto das densidades nas 17 vidas). O \textbf{MLE} escolhe o $\theta$ ($\beta,\eta,\dots$) que \textbf{maximiza} $L$ --- ou seja, a distribuição sob a qual os 17 TTFs medidos são os \textbf{mais plausíveis}. Os parâmetros saem direto dessas 17 vidas, sem ajuste manual.
     \end{block}
 \end{frame}
 
@@ -377,10 +377,10 @@
         \end{center}
         \column{0.5\textwidth}
         \begin{center}
-            \includegraphics[width=\linewidth]{curva_banheira.png}
+            \includegraphics[width=0.86\linewidth]{curva_banheira.png}
         \end{center}
-        \begin{block}{Por que só ``desgaste''?}
-            \tiny A banheira tem 3 fases: mortalidade infantil ($\beta{<}1$), vida útil ($\beta{\approx}1$) e desgaste ($\beta{>}1$). Aqui há \textbf{um único modo} ($\beta{=}1{,}80$) $\Rightarrow$ \textbf{um único ponto}, na zona de desgaste. Os ensaios partem do rolamento são e o levam direto à \textbf{fadiga} --- não capturam as outras fases. Ter ``dois níveis'' exigiria modos/sub-populações com $\beta$ diferentes.
+        \begin{block}{Desgaste, não mortalidade infantil}
+            \tiny A região da banheira depende da \textbf{forma} ($\beta$), \textbf{não} da velocidade da falha. $\beta{=}1{,}80$ (IC $[1{,}39;\,2{,}88]$, todo $>1$) $\Rightarrow$ taxa \textbf{crescente} $=$ desgaste/fadiga. A aceleração só \textbf{encurta a vida} ($\eta$); não vira mortalidade infantil (que exigiria $\beta{<}1$). O MTTR de 24\,h afeta só a \textbf{disponibilidade}, não a banheira.
         \end{block}
     \end{columns}
 \end{frame}

@@ -79,7 +79,7 @@ Belo Horizonte, MG, Brasil}
 % RESUMO
 % =========================================================================
 \begin{abstract}
-Este trabalho aplica métodos clássicos de Engenharia de Confiabilidade a rolamentos sob carga acelerada, usando o conjunto de dados experimental público PRONOSTIA / FEMTO-ST (IEEE PHM 2012), composto por medições de vibração de degradação natural até a falha. O indicador de degradação, o valor RMS da vibração em banda larga, é extraído para todo o ciclo de vida. As séries temporais são tratadas como dados de vida exatos (\textit{run-to-failure}). Sobre estes dados ajustam-se as distribuições Exponencial, Weibull e Log-normal por máxima verossimilhança, com seleção por AICc e intervalos de confiança por \textit{bootstrap} ($R=10^4$). Calculam-se MTTF, $R(t)$, taxa de falha $h(t)$ e disponibilidade $A$. O sistema é então modelado por Diagrama de Blocos de Confiabilidade (2 rolamentos em série) e simulado por Monte Carlo nas configurações série, paralelo e \textit{standby}, com verificação analítica da disponibilidade. O parâmetro de forma obtido ($\beta \approx 1{,}80$) é coerente com a literatura de desgaste por fadiga.
+Este trabalho aplica métodos clássicos de Engenharia de Confiabilidade a rolamentos sob carga acelerada, usando o conjunto de dados experimental público PRONOSTIA / FEMTO-ST (IEEE PHM 2012), composto por medições de vibração de degradação natural até a falha. O indicador de degradação, o valor RMS da vibração em banda larga, é extraído para todo o ciclo de vida. As séries temporais são tratadas como dados de vida exatos (\textit{run-to-failure}). Sobre estes dados ajustam-se as distribuições Exponencial, Weibull e Log-normal por máxima verossimilhança, com seleção por AICc e intervalos de confiança por \textit{bootstrap} ($R=10^4$). Calculam-se MTTF, $R(t)$, taxa de falha $h(t)$ e disponibilidade $A$. Um sistema hipotético de dois rolamentos é então modelado por Diagrama de Blocos de Confiabilidade e simulado por Monte Carlo nas configurações série, paralelo e \textit{standby}, com verificação analítica da disponibilidade. O parâmetro de forma obtido ($\beta \approx 1{,}80$) é coerente com a literatura de desgaste por fadiga.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -172,8 +172,14 @@ O ensaio é interrompido quando a amplitude de vibração ultrapassa 20\,g
 São 17 rolamentos levados à falha, distribuídos em três condições de
 operação (Tabela~\ref{tab:condicoes}). Por serem ensaios \textit{run-to-failure}, os
 dados refletem a vida total de cada unidade: o tempo até a falha é obtido
-diretamente, sem censura. Os 17 são tratados como uma única população de
-``rolamento sob carga acelerada''.
+diretamente, sem censura. É importante destacar que a bancada ensaia um
+rolamento por vez: os 17 não são posições de um mesmo equipamento, e sim
+17 ensaios independentes de um mesmo tipo de rolamento, repetidos até a
+falha. Por isso são tratados como uma única população de ``rolamento sob
+carga acelerada'', e as 17 vidas constituem a amostra a partir da qual se
+estima a distribuição de vida do componente. A modelagem de sistema com
+redundância (Seção~\ref{sec:metodo}) é, portanto, um cenário hipotético
+construído sobre essa distribuição, e não a topologia física da bancada.
 
 \begin{table}[!htbp]
   \centering
@@ -257,14 +263,40 @@ $A=\mathrm{MTTF}/(\mathrm{MTTF}+\mathrm{MTTR})$, com $\mathrm{MTTR}=24$\,h (valo
 engenharia para a substituição de um rolamento).
 
 \subsection{Modelo de Sistema e Monte Carlo}
-Avalia-se um Diagrama de Blocos de Confiabilidade hipotético com dois
-rolamentos. Por inversão da CDF ($t=F^{-1}(U)$) simulam-se $N=10^5$ tempos de falha do
-sistema e comparam-se três arquiteturas: série (uma unidade,
-$t=\min(t_1,t_2)$), paralelo ativo ($t=\max(t_A,t_B)$) e \textit{standby}
-a frio (a reserva entra após a 1ª falha, $t=t_A+t_B$). A disponibilidade é verificada
-analiticamente: série $A=A_1A_2$, paralelo $1-(1-A)^2$ e \textit{standby}
-$(\mu^2+\mu\lambda)/(\mu^2+\mu\lambda+\lambda^2)$, com $\lambda$ taxa de falha e $\mu$
-taxa de reparo~\cite{zio2013}.
+O Diagrama de Blocos de Confiabilidade (DBC) é uma representação lógica que
+define quais componentes precisam funcionar para o sistema funcionar; a
+simulação de Monte Carlo é o método numérico que avalia esse diagrama,
+sorteando o tempo de falha de cada bloco a partir da distribuição ajustada
+e combinando-os conforme a estrutura. São coisas complementares: o DBC diz
+``como os blocos se ligam'' e o Monte Carlo diz ``quanto isso vale em
+$R(t)$ e $A$''.
+
+Como a bancada PRONOSTIA não possui rolamentos redundantes, monta-se um
+sistema hipotético para ilustrar o efeito da redundância, com a topologia
+da Fig.~\ref{fig:dbc}. A unidade base é um conjunto de dois rolamentos em
+série (ambos necessários: o conjunto para se qualquer um falhar). Sobre essa
+unidade comparam-se três arquiteturas: série (uma unidade,
+$t=\min(t_1,t_2)$), paralelo ativo (duas unidades operando, basta uma de pé,
+$t=\max(t_A,t_B)$) e \textit{standby} a frio (uma unidade ativa e uma reserva
+que só entra após a falha da primeira, $t=t_A+t_B$). Por inversão da CDF
+($t=F^{-1}(U)$, com $U$ uniforme em $[0,1]$) simulam-se $N=10^5$ vidas de cada
+arquitetura, das quais se estimam $R(t)$ e o MTTF do sistema. A disponibilidade é
+verificada analiticamente: série $A=A_1A_2$, paralelo $1-(1-A)^2$ e
+\textit{standby} $(\mu^2+\mu\lambda)/(\mu^2+\mu\lambda+\lambda^2)$, com $\lambda$
+taxa de falha e $\mu$ taxa de reparo~\cite{zio2013}.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\columnwidth]{p6_diagrama_blocos.png}
+  \caption{Diagrama de Blocos de Confiabilidade das três arquiteturas
+  comparadas por Monte Carlo: (a) série, (b) paralelo ativo e (c)
+  \textit{standby} a frio. A unidade base é um par de dois rolamentos em série
+  (ambos necessários); por isso o paralelo e o \textit{standby} exibem duas
+  unidades (A e B), cada uma com seus dois rolamentos. Cada bloco é um rolamento
+  com a distribuição de vida ajustada; os blocos cinzas são a reserva fria, que
+  só entra em operação após a falha da unidade ativa.}
+  \label{fig:dbc}
+\end{figure}
 
 % =========================================================================
 % IV. RESULTADOS
