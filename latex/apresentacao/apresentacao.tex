@@ -217,7 +217,7 @@
 % Slide: geracao dos TTF (agora reais)
 \begin{frame}{Passo 2: Extração dos Tempos Até a Falha (TTF)}
     \begin{columns}
-        \column{0.46\textwidth}
+        \column{0.40\textwidth}
         \scriptsize
         Diferente de datasets de \textit{snapshots}, \textbf{não simulamos} tempos de falha: os ensaios são \textbf{run-to-failure}. O TTF de cada rolamento é o \textbf{tempo do último arquivo} antes do desligamento (vibração $>20$\,g).
         \vspace{0.15cm}
@@ -225,27 +225,27 @@
         \begin{block}{Sem censura}
             \scriptsize Os 17 rolamentos foram testados até quebrar $\Rightarrow$ \textbf{nenhuma censura} (\textit{censura}$=0$ para todos). Temos a vida \textbf{exata} de todo o lote.
         \end{block}
-        \column{0.54\textwidth}
+        \column{0.60\textwidth}
         \scriptsize
         \textbf{Tabela gerada (\texttt{ttf.csv}) --- 17 vidas:}
         \vspace{0.05cm}
 
-        \begin{tabular}{lr@{\hskip 10pt}lr}
+        \tiny
+        \begin{tabular}{lcr@{\hskip 8pt}lcr}
             \toprule
-            \textbf{Rol.} & \textbf{TTF} & \textbf{Rol.} & \textbf{TTF} \\
+            \textbf{Rol.} & \textbf{Carga (N)} & \textbf{TTF (h)} & \textbf{Rol.} & \textbf{Carga (N)} & \textbf{TTF (h)} \\
             \midrule
-            1\_1 & 7,78 & 1\_6 & 5,43 \\
-            1\_2 & 2,42 & 1\_7 & 2,08 \\
-            2\_1 & 6,59 & 2\_3 & 6,42 \\
-            2\_2 & 3,96 & 2\_4 & 1,94 \\
-            3\_1 & 6,84 & 2\_5 & 0,64 \\
-            3\_2 & 6,80 & 2\_6 & 1,43 \\
-            1\_3 & 6,27 & 2\_7 & 4,54 \\
-            1\_4 & 2,53 & 3\_3 & 1,20 \\
-            1\_5 & 2,21 & & \\
+            1\_1 & 4000 & 7,78 & 2\_3 & 4200 & 6,42 \\
+            1\_2 & 4000 & 2,42 & 2\_4 & 4200 & 1,94 \\
+            1\_3 & 4000 & 6,27 & 2\_5 & 4200 & 0,64 \\
+            1\_4 & 4000 & 2,53 & 2\_6 & 4200 & 1,43 \\
+            1\_5 & 4000 & 2,21 & 2\_7 & 4200 & 4,54 \\
+            1\_6 & 4000 & 5,43 & 3\_1 & 5000 & 6,84 \\
+            1\_7 & 4000 & 2,08 & 3\_2 & 5000 & 6,80 \\
+            2\_1 & 4200 & 6,59 & 3\_3 & 5000 & 1,20 \\
+            2\_2 & 4200 & 3,96 & & & \\
             \bottomrule
         \end{tabular}
-        \hfill {\tiny TTF em horas.}
     \end{columns}
 \end{frame}
 
@@ -305,7 +305,7 @@
     \end{tabular}
     \vspace{0.3cm}
     \begin{block}{A supremacia da Weibull}
-        \scriptsize A distribuição \textbf{Weibull} venceu no critério estatístico (menor AICc). Além disso, ela é fundamental na engenharia por oferecer interpretação física direta do parâmetro de forma $\beta$ na curva da banheira. O $\eta$ é o tempo em que $\approx 63\%$ das unidades falham.
+        \scriptsize A distribuição \textbf{Weibull} venceu no critério estatístico (menor AICc). Além disso, ela é fundamental na engenharia por oferecer interpretação física direta do parâmetro de forma $\beta$ na curva da banheira. O $\eta$ é a \textbf{vida característica}: por definição da Weibull, $R(\eta)=e^{-(\eta/\eta)^\beta}=e^{-1}$, então em $t=\eta$ já falharam $1-e^{-1}\approx 63\%$ das unidades. É \textbf{propriedade matemática} (vale para qualquer $\beta$), não convenção de engenharia.
     \end{block}
 \end{frame}
 
@@ -314,12 +314,12 @@
     \begin{columns}
         \column{0.5\textwidth}
         \scriptsize
-        \textbf{Como é calculado} (repetir $r=10^4$ vezes):
+        \textbf{Como é calculado} --- repete-se o procedimento abaixo $r=10^4$ vezes ($r$ $=$ número de \textbf{reamostragens}):
         \begin{enumerate}\setlength{\itemsep}{0pt}
             \item sorteia, \textbf{com reposição}, 17 TTF da amostra original;
             \item reajusta a Weibull $\rightarrow$ par $(\beta_b,\eta_b)$.
         \end{enumerate}
-        IC 95\% $=$ [percentil 2,5\% ; 97,5\%] das $10^4$ estimativas:
+        IC 95\% $=$ [percentil 2,5\% ; 97,5\%] das $r=10^4$ estimativas:
         $$\text{IC}_{\beta}=\big[\,\beta_{(2{,}5\%)},\ \beta_{(97{,}5\%)}\big].$$
         \begin{block}{O que são $\beta$, $\eta$ e $R(t)$}
             \tiny
@@ -331,7 +331,7 @@
         \begin{center}
             \includegraphics[width=\linewidth]{p4_bootstrap_pronostia_all.png}
         \end{center}
-        {\tiny Histogramas das $10^4$ reamostras: \textbf{eixo $x$} $=$ valor do parâmetro ($\beta$ ou $\eta$), \textbf{eixo $y$} $=$ frequência. As \textbf{linhas verticais tracejadas} marcam os limites do \textbf{IC 95\%}.}
+        {\tiny\linespread{0.82}\selectfont Histogramas das $10^4$ reamostras: \textbf{eixo $x$} $=$ valor do parâmetro ($\beta$ ou $\eta$), \textbf{eixo $y$} $=$ frequência. As \textbf{linhas verticais tracejadas} marcam os limites do \textbf{IC 95\%}. É a distribuição \textbf{amostral} da estimativa (sino pelo TLC); essa forma não tem relação com o $\beta$ da vida do rolamento.\par}
         \vspace{0.1cm}
         \begin{center}
             \includegraphics[width=0.62\linewidth]{weibull_generica.png}
