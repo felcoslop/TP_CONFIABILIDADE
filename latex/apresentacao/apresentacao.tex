@@ -179,10 +179,10 @@
         \toprule
         \textbf{rolamento} & \textbf{snapshot} & \textbf{tempo (h)} & \textbf{valor (RMS)} \\
         \midrule
-        Bearing1\_1 & acc\_00001.csv & 0,000 & 0,431 \\
-        Bearing1\_1 & acc\_00002.csv & 0,002 & 0,428 \\
+        Bearing1\_1 & acc\_00001.csv & 0,000 & 0,56 \\
+        Bearing1\_1 & acc\_00002.csv & 0,003 & 0,53 \\
         $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ \\
-        Bearing1\_1 & acc\_02803.csv & 7,783 & 20,01 \\
+        Bearing1\_1 & acc\_02803.csv & 7,783 & 5,71 \\
         \bottomrule
     \end{tabular}
     \normalsize
@@ -203,8 +203,8 @@
             \item \textbf{Fase de defeito}: a vibração sobe à medida que a trinca cresce.
             \item \textbf{Falha funcional}: vibração atinge \textbf{20\,g} $\Rightarrow$ bancada para.
         \end{itemize}
-        \begin{alertblock}{Aqui as \textit{features} VIRAM tempo}
-            \footnotesize Cada \textit{snapshot} tem um \textbf{carimbo de tempo real}. Plotar RMS $\times$ tempo dá a \textbf{trajetória de degradação verdadeira} --- o tempo de falha é \textbf{lido direto}, não simulado (diferente de datasets de \textit{snapshots} sem eixo de vida).
+        \begin{alertblock}{Eixo Y é RMS de banda; a parada é por pico de 20\,g}
+            \footnotesize Atenção ao eixo Y: ele mostra o \textbf{RMS de banda} (energia média, 10\,Hz--10\,kHz), mas o ensaio para quando a \textbf{amplitude de pico} do sinal cru ultrapassa \textbf{20\,g}. Como o RMS é sempre \textbf{menor que o pico} (e o fator de crista varia entre falhas), as curvas terminam \textbf{abaixo de 20\,g} e em níveis diferentes.
         \end{alertblock}
         \column{0.48\textwidth}
         \begin{center}
@@ -272,7 +272,7 @@
     \normalsize
     \vspace{0.1cm}
     \begin{block}{O que é verossimilhança e como entra aqui (MLE)}
-        \scriptsize \textbf{Verossimilhança} $=$ a probabilidade de os dados observados terem sido gerados por uma dada distribuição, vista como \textbf{função dos parâmetros}: $L(\theta)=\prod_{i=1}^{17} f(t_i;\theta)$ (produto das densidades nas 17 vidas). O \textbf{MLE} escolhe o $\theta$ ($\beta,\eta,\dots$) que \textbf{maximiza} $L$ --- ou seja, a distribuição sob a qual os 17 TTFs medidos são os \textbf{mais plausíveis}. Os parâmetros saem direto dessas 17 vidas, sem ajuste manual.
+        \scriptsize Cada par de parâmetros gera uma curva da distribuição. A \textbf{verossimilhança} $L(\theta)=\prod_{i=1}^{17} f(t_i;\theta)$ (produto das densidades nos dados) mede o quão \textbf{compatível} essa curva é com os 17 TTFs. O \textbf{MLE} acha automaticamente o $\theta$ ($\beta,\eta,\dots$) que \textbf{maximiza} $L$ --- a curva que ``melhor passa'' pelos dados. Na conta usa-se $\ln L=\sum_i\ln f(t_i;\theta)$ (vira soma e evita produtos $\sim\!10^{-40}$). \textbf{As três} distribuições são ajustadas assim, cada uma com seu próprio $L$ (o AICc compara depois). Sem ajuste manual: os parâmetros saem direto das 17 vidas.
     \end{block}
 \end{frame}
 
@@ -305,7 +305,7 @@
     \end{tabular}
     \vspace{0.3cm}
     \begin{block}{A supremacia da Weibull}
-        \scriptsize A distribuição \textbf{Weibull} venceu no critério estatístico (menor AICc). Além disso, ela é fundamental na engenharia por oferecer interpretação física direta do parâmetro de forma $\beta$ na curva da banheira. O $\eta$ é a \textbf{vida característica}: por definição da Weibull, $R(\eta)=e^{-(\eta/\eta)^\beta}=e^{-1}$, então em $t=\eta$ já falharam $1-e^{-1}\approx 63\%$ das unidades. É \textbf{propriedade matemática} (vale para qualquer $\beta$), não convenção de engenharia.
+        \scriptsize A distribuição \textbf{Weibull} é fundamental na engenharia por oferecer interpretação física direta do parâmetro de forma $\beta$ na curva da banheira. O $\eta$ é a \textbf{vida característica}: por definição da Weibull, $R(\eta)=e^{-(\eta/\eta)^\beta}=e^{-1}$, então em $t=\eta$ já falharam $1-e^{-1}\approx 63\%$ das unidades. É \textbf{propriedade matemática} (vale para qualquer $\beta$), não convenção de engenharia.
     \end{block}
 \end{frame}
 
